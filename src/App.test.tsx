@@ -5,15 +5,24 @@ import { describe, test, expect } from 'vitest';
 
 describe('App Routing', () => {
   describe('dado que el usuario no está autenticado', () => {
-    test('debe renderizar la LoginPage para la ruta raíz', () => {
+    test('debe renderizar la página de bienvenida en la ruta raíz', () => {
       render(
         <MemoryRouter initialEntries={['/']}>
           <App />
         </MemoryRouter>
       );
 
-      const loginHeading = screen.getByRole('heading', { name: /login page/i });
-      expect(loginHeading).toBeInTheDocument();
+      // Verifica que el título principal de la página de bienvenida esté presente.
+      const mainHeading = screen.getByRole('heading', {
+        name: /Plataforma de Métricas DORA/i,
+      });
+      expect(mainHeading).toBeInTheDocument();
+
+      // Verifica que el botón de llamado a la acción exista.
+      const loginButton = screen.getByRole('button', {
+        name: /Iniciar Sesión con GitHub/i,
+      });
+      expect(loginButton).toBeInTheDocument();
     });
   });
 
