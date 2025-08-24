@@ -4,23 +4,36 @@ import App from './App';
 import { describe, test, expect } from 'vitest';
 
 describe('App Routing', () => {
-  test('should render LoginPage for the root path when user is not authenticated', () => {
-    // Paso 1: Renderizar el componente principal de la aplicación,
-    // envolviéndolo en MemoryRouter para simular la navegación.
-    // Se especifica que la ruta inicial es '/'
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>
-    );
+  describe('dado que el usuario no está autenticado', () => {
+    test('debe renderizar la LoginPage para la ruta raíz', () => {
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <App />
+        </MemoryRouter>
+      );
 
-    // Paso 2: Buscar un elemento distintivo de la página de Login.
-    // Usamos getByRole para buscar un encabezado (h1, h2, etc.) con el texto "Login Page".
-    // La opción /i hace que la búsqueda no distinga mayúsculas de minúsculas.
-    const loginHeading = screen.getByRole('heading', { name: /login page/i });
+      const loginHeading = screen.getByRole('heading', { name: /login page/i });
+      expect(loginHeading).toBeInTheDocument();
+    });
+  });
 
-    // Paso 3: Afirmar que el encabezado existe en el documento.
-    // Este test fallará porque el App.tsx actual no renderiza esto.
-    expect(loginHeading).toBeInTheDocument();
+  describe('dado que el usuario está autenticado', () => {
+    test('debe renderizar la HomePage y el Layout para una ruta protegida', () => {
+      // Para este test, asumimos que el usuario está autenticado y navega a /home
+      render(
+        <MemoryRouter initialEntries={['/home']}>
+          <App />
+        </MemoryRouter>
+      );
+
+      // Buscamos un elemento distintivo de la página de inicio
+      const homeHeading = screen.getByRole('heading', { name: /página de inicio/i });
+      expect(homeHeading).toBeInTheDocument();
+
+      // También verificamos que un elemento del layout persistente esté presente.
+      // El tag <header> tiene el rol implícito de "banner".
+      const header = screen.getByRole('banner');
+      expect(header).toBeInTheDocument();
+    });
   });
 });
