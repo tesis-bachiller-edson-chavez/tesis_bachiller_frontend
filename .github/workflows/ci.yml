@@ -1,0 +1,50 @@
+# .github/workflows/ci.yml
+
+# Nombre del workflow que aparecerá en la pestaña "Actions" de GitHub
+name: Frontend CI
+
+# Define cuándo se debe ejecutar este workflow
+on:
+  # Se ejecuta en cada push a la rama 'main'
+  push:
+    branches: [ "main" ]
+  # Se ejecuta en cada pull request que apunte a la rama 'main'
+  pull_request:
+    branches: [ "main" ]
+
+# Permisos que necesitará el job para ejecutarse
+permissions:
+  contents: read
+
+# Define los trabajos (jobs) que se ejecutarán
+jobs:
+  # El nombre del job es 'test'
+  test:
+    # El tipo de máquina virtual en la que se ejecutará
+    runs-on: ubuntu-latest
+
+    # Los pasos que componen el job
+    steps:
+      # 1. Clona tu repositorio en la máquina virtual
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      # 2. Configura Node.js. Usamos la versión 22.x para alinearla con el entorno de desarrollo.
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # Añadimos caché para las dependencias de npm para acelerar futuras ejecuciones
+          cache: 'npm'
+
+      # 3. Instala las dependencias del proyecto
+      # 'npm ci' es preferido en CI sobre 'npm install' porque usa el
+      # archivo package-lock.json para asegurar instalaciones limpias y reproducibles.
+      - name: Instalar dependencias
+        run: npm ci
+
+      # 4. Ejecuta los tests
+      # El comando 'npm test' ejecutará Vitest, que está configurado en package.json.
+      # Si algún test falla, este paso fallará y el workflow se detendrá.
+      - name: Ejecutar tests
+        run: npm test
