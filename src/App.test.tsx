@@ -5,7 +5,7 @@ import { describe, test, expect } from 'vitest';
 
 describe('App Routing', () => {
   describe('dado que el usuario no está autenticado', () => {
-    test('debe renderizar la página de bienvenida en la ruta raíz', () => {
+    test('debe renderizar la LoginPage para la ruta raíz', () => {
       render(
         <MemoryRouter initialEntries={['/']}>
           <App />

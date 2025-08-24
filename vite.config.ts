@@ -33,6 +33,8 @@ export default mergeConfig(
           './src/main.tsx',
           './src/vite-env.d.ts',
           './src/setupTests.ts',
+          'src/components/ui/**',
+          'src/lib/**',
         ],
       },
     },
