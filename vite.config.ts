@@ -14,6 +14,21 @@ export default mergeConfig(
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json', 'html'],
+        all: true,
+        exclude: [
+          './.github/**',
+          './coverage/**',
+          './dist/**',
+          './eslint.config.js',
+          './vite.config.ts',
+          './src/main.tsx',
+          './src/vite-env.d.ts',
+          './src/setupTests.ts',
+        ],
+      },
     },
   })
 )
