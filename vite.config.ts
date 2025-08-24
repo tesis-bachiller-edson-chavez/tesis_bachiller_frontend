@@ -1,34 +1,46 @@
 /// <reference types="vitest" />
-import { defineConfig as defineViteConfig } from 'vite'
-import { defineConfig as defineVitestConfig, mergeConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://vitejs.dev/config/
-export default mergeConfig(
-  defineViteConfig({
-    plugins: [react(), tailwindcss()],
-  }),
-  defineVitestConfig({
-    test: {
-      globals: true,
-      environment: 'jsdom',
-      setupFiles: './src/setupTests.ts',
-      coverage: {
-        provider: 'v8',
-        reporter: ['text', 'json', 'html'],
-        all: true,
-        exclude: [
-          './.github/**',
-          './coverage/**',
-          './dist/**',
-          './eslint.config.js',
-          './vite.config.ts',
-          './src/main.tsx',
-          './src/vite-env.d.ts',
-          './src/setupTests.ts',
-        ],
-      },
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-  })
-)
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      all: true,
+      exclude: [
+        // Config files
+        'postcss.config.mjs',
+        'tailwind.config.ts',
+        'vite.config.ts',
+        'eslint.config.js',
+        'components.json',
+
+        // Directories
+        '.github/**',
+        'coverage/**',
+        'dist/**',
+        'node_modules/**',
+
+        // Source files
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/setupTests.ts',
+        'src/components/ui/**',
+        'src/lib/**',
+      ],
+    },
+  },
+});
