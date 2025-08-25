@@ -7,6 +7,10 @@ import {
 } from "@/components/ui/card";
 
 export const LoginPage = () => {
+  const handleLogin = () => {
+    window.location.href = '/oauth2/authorization/github';
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md mx-4">
@@ -20,7 +24,7 @@ export const LoginPage = () => {
         </CardHeader>
         <CardContent>
           <div className="flex justify-center">
-            <Button className="w-full bg-primary text-primary-foreground">
+            <Button className="w-full bg-primary text-primary-foreground" onClick={handleLogin}>
               Iniciar Sesión con GitHub
             </Button>
           </div>
