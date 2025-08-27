@@ -36,7 +36,7 @@ describe('App Routing', () => {
       );
 
       // Buscamos un elemento distintivo de la página de inicio
-      const homeHeading = screen.getByRole('heading', { name: /página de inicio/i });
+      const homeHeading = screen.getByRole('heading', { name: /Dashboard Principal/i });
       expect(homeHeading).toBeInTheDocument();
 
       // También verificamos que un elemento del layout persistente esté presente.
