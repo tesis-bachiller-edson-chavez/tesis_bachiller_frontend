@@ -9,7 +9,16 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
+      // Redirige las peticiones de autenticación y API al backend
       '/oauth2': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/logout': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
