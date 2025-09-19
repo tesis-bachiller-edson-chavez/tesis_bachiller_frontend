@@ -1,6 +1,6 @@
 # 1. Define el bucket de S3
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "202509-tesis-ECHAVEZ"
+  bucket = "202509-tesis-echavez"
 
   tags = {
     Name        = "DORA Platform Frontend"
