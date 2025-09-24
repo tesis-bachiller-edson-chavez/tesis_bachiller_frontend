@@ -34,6 +34,8 @@ jobs:
 
       - name: Build Project
         run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
       - name: Deploy to S3
         run: |
