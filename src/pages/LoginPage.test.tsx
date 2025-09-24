@@ -19,21 +19,28 @@ describe('LoginPage', () => {
       writable: true,
       value: originalLocation,
     });
+    // Limpia todos los mocks y stubs después de cada test
+    vi.restoreAllMocks();
   });
 
   test('debe redirigir al flujo de autorización de GitHub al hacer clic en el botón', () => {
-    // Prepara el "espía" para la propiedad href
+    // 1. Define y simula la variable de entorno para este test
+    const MOCK_API_URL = 'https://api.test.com';
+    vi.stubEnv('VITE_API_BASE_URL', MOCK_API_URL);
+
+    // 2. Prepara el "espía" para la propiedad href
     const hrefSet = vi.spyOn(window.location, 'href', 'set');
 
     render(<LoginPage />);
 
-    // Encuentra y haz clic en el botón
+    // 3. Encuentra y haz clic en el botón
     const loginButton = screen.getByRole('button', {
       name: /Iniciar Sesión con GitHub/i,
     });
     fireEvent.click(loginButton);
 
-    // Verifica que se intentó asignar la URL correcta
-    expect(hrefSet).toHaveBeenCalledWith('/oauth2/authorization/github');
+    // 4. Verifica que se intentó asignar la URL completa y correcta
+    const expectedUrl = `${MOCK_API_URL}/oauth2/authorization/github`;
+    expect(hrefSet).toHaveBeenCalledWith(expectedUrl);
   });
 });
