@@ -8,7 +8,8 @@ import {
 
 export const LoginPage = () => {
   const handleLogin = () => {
-    window.location.href = '/oauth2/authorization/github';
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    window.location.href = `${apiUrl}/oauth2/authorization/github`;
   };
 
   return (
