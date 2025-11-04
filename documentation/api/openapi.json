@@ -10,23 +10,28 @@
       "description": "Generated server url"
     }
   ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "API para gestión de usuarios de la organización"
+    }
+  ],
   "paths": {
     "/api/v1/users": {
       "get": {
         "tags": [
-          "user-controller"
+          "Users"
         ],
+        "summary": "Obtener usuarios activos con sus roles",
+        "description": "Retorna una lista de todos los usuarios activos de la organización, incluyendo sus roles asignados. Cada usuario tiene al menos el rol 'DEVELOPER' por defecto.",
         "operationId": "getActiveUsers",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Lista de usuarios obtenida exitosamente",
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserSummaryDto"
-                  }
+                  "$ref": "#/components/schemas/UserSummaryDto"
                 }
               }
             }
@@ -37,12 +42,34 @@
     "/api/v1/users/me": {
       "get": {
         "tags": [
-          "user-controller"
+          "Users"
         ],
+        "summary": "Obtener información del usuario autenticado",
+        "description": "Retorna los datos del usuario actualmente autenticado, incluyendo sus roles asignados",
         "operationId": "getCurrentUser",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Usuario encontrado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado en la base de datos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
             "content": {
               "*/*": {
                 "schema": {
@@ -61,15 +88,36 @@
         "type": "object",
         "properties": {
           "githubUsername": {
-            "type": "string"
+            "type": "string",
+            "description": "Nombre de usuario de GitHub",
+            "example": "john_doe"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Nombre completo del usuario",
+            "example": "John Doe"
           },
           "avatarUrl": {
-            "type": "string"
+            "type": "string",
+            "description": "URL del avatar del usuario en GitHub",
+            "example": "https://avatars.githubusercontent.com/u/123456"
+          },
+          "roles": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "Roles asignados al usuario en el sistema",
+            "example": [
+              "DEVELOPER",
+              "TECH_LEAD"
+            ],
+            "items": {
+              "type": "string",
+              "description": "Roles asignados al usuario en el sistema",
+              "example": "[\"DEVELOPER\",\"TECH_LEAD\"]"
+            }
           }
-        }
+        },
+        "description": "Información resumida de un usuario activo de la organización"
       },
       "UserDto": {
         "type": "object",

@@ -14,8 +14,8 @@ vi.mock('@/components/UsersTable', () => ({
 
 // Datos de prueba
 const mockUsers = [
-  { githubUsername: 'user1', name: 'User One', avatarUrl: '' },
-  { githubUsername: 'user2', name: 'User Two', avatarUrl: '' },
+  { githubUsername: 'user1', name: 'User One', avatarUrl: '', roles: ['DEVELOPER'] },
+  { githubUsername: 'user2', name: 'User Two', avatarUrl: '', roles: ['DEVELOPER', 'TECH_LEAD'] },
 ];
 
 describe('UserManagementPage', () => {

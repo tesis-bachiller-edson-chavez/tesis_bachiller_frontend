@@ -9,10 +9,10 @@
 ## 1. Introducción
 
 ### 1.1. Propósito
-El presente documento describe la arquitectura, los componentes y el diseño general de la solución de software propuesta en la tesis "Propuesta de implementación de una solución para la medición de métricas de desempeño de entrega de software para equipos de desarrollo". Este documento servirá como guía técnica para la implementación del proyecto.
+El presente documento describe la arquitectura, los componentes y el diseño general de la solución de software propuesta en la tesis "Implementación de una solución para la medición de métricas DORA de entrega de software para equipos de desarrollo". Este documento servirá como guía técnica para la implementación del proyecto.
 
 ### 1.2. Resumen del Proyecto
-El proyecto consiste en el desarrollo de una plataforma para la medición continua y automatizada del rendimiento de entrega de software, centrándose en las cuatro métricas clave de DORA (Frecuencia de Despliegue, Tiempo de Espera para Cambios, Tasa de Fallo de Cambio y Tiempo Medio de Recuperación). La solución extraerá datos de herramientas existentes en el ciclo de vida de desarrollo, los procesará y los presentará en dashboards visuales para facilitar la toma de decisiones basada en datos.
+El proyecto consiste en el desarrollo de una plataforma para la medición continua y automatizada del rendimiento de entrega de software, centrándose en las cuatro métricas clave de DORA (Frecuencia de Despliegue, Tiempo de Espera para Cambios, Tasa de Fallo de Cambio y Tiempo Medio de Recuperación). La solución extraerá datos de herramientas existentes en el ciclo de vida de desarrollo, los procesará y calculará las métricas y los presentará en dashboards visuales para facilitar la toma de decisiones basada en datos.
 
 ---
 
@@ -246,7 +246,7 @@ El valor real de las métricas se obtiene al poder analizarlas desde diferentes 
 ### 7.1. Niveles de Agregación
 La plataforma soportará una jerarquía de agregación de datos para proporcionar vistas desde lo más general a lo más específico.
 
-- **Nivel 1: Organización:** La vista de más alto nivel. Todas las métricas de todos los equipos y repositorios se agregan para mostrar el rendimiento global de la ingeniería.
+- **Nivel 1: Organzación:** La vista de más alto nivel. Todas las métricas de todos los equipos y repositorios se agregan para mostrar el rendimiento global de la ingeniería.
 - **Nivel 2: Equipo:** Las métricas de todos los repositorios que pertenecen a un equipo específico se agregan para mostrar el rendimiento de dicho equipo.
 - **Nivel 3: Repositorio:** Es el nivel más granular donde se calculan las métricas. Muestra el rendimiento de un componente o servicio individual.
 
@@ -276,7 +276,6 @@ La capacidad de ver ciertos niveles de agregación y aplicar filtros estará dir
 ---
 
 ## 8. Modelo de Seguridad
-
 - **Autenticación y Gestión de Sesión:** Se utilizará el protocolo **OAuth 2.0 con GitHub**. La sesión del usuario se gestionará a través de una **cookie segura (`HttpOnly`, `Secure`)** establecida por el backend. Esto mitiga el riesgo de robo de tokens por ataques XSS, ya que el token de sesión no es accesible desde el JavaScript del navegador.
 - **Restricción de Acceso:** El acceso a la aplicación estará restringido únicamente a los miembros de una organización de GitHub específica, configurada en el sistema.
   ***Nota de Diseño (Seguridad vs. Disponibilidad):*** *Para el MVP, la verificación de pertenencia a la organización se realizará en tiempo real contra la API de GitHub en cada inicio de sesión. Este enfoque prioriza la seguridad, garantizando que el acceso sea siempre preciso. Sin embargo, crea una dependencia directa con la API de GitHub. Una evolución futura para mejorar la disponibilidad y el rendimiento sería implementar un sistema de caché que sincronice la lista de miembros periódicamente y verifique contra esa copia local.*
@@ -304,7 +303,7 @@ La capacidad de ver ciertos niveles de agregación y aplicar filtros estará dir
 | **Backend (Modularidad)** | **Spring Modulith** | Para verificar y documentar la arquitectura modular, previniendo el deterioro arquitectónico. |
 | **Base de Datos** | MySQL 8+ | Sistema de BD relacional de código abierto, confiable y ampliamente utilizado. |
 | **Visualización** | Grafana | Estándar de la industria para dashboards de monitoreo y métricas. |
-| **Frontend** | React (con Vite) | Framework moderno, declarativo y basado en componentes, ideal para SPAs complejas. Vite ofrece una experiencia de desarrollo ultrarrápida. |
+| **Frontend** | React (con Vite) | Framework moderno, declarativo y basado en componentes, ideal para SPAs complexas. Vite ofrece una experiencia de desarrollo ultrarrápida. |
 | **Frontend (Estado del Servidor)** | **TanStack Query** | Estándar de facto para gestionar la comunicación con APIs, el cacheo de datos y los estados de carga/error, simplificando el código y mejorando la experiencia de usuario. |
 | **Frontend (Componentes)** | **Shadcn/UI** | Librería de componentes accesibles y componibles que se integra perfectamente con Tailwind CSS, acelerando el desarrollo de la UI. |
 | **Contenerización** | Docker | Para empaquetar la aplicación y sus dependencias, garantizando consistencia. |
@@ -585,7 +584,424 @@ La construcción del frontend seguirá un enfoque pragmático en tres fases prin
 
 ## Apéndice A: Diagramas de Diseño Detallado
 
-### A.1: Modelo Físico de Base de Datos (ERD)
+### A.1:
+
+### Diagrama de clases
+```mermaid
+classDiagram
+    direction LR
+
+    namespace module_domain {
+        class User {
+            <<Entity>>
+            +Long id
+            +String githubUsername
+            +boolean active
+            +Set<Role> roles
+        }
+        class Role {
+            <<Entity>>
+            +Long id
+            +RoleName name
+        }
+        class RoleName {
+            <<Enum>>
+            ADMIN
+            DEVELOPER
+        }
+        class Commit {
+            <<Entity>>
+            +String sha
+            +String author
+            +LocalDateTime date
+            +List<Commit> parents
+        }
+        class Deployment {
+            <<Entity>>
+            +Long id
+            +String sha
+            +String environment
+            +LocalDateTime createdAt
+            +boolean leadTimeProcessed
+        }
+        class PullRequest {
+            <<Entity>>
+            +Long id
+            +String state
+            +String firstCommitSha
+            +RepositoryConfig repository
+        }
+        class RepositoryConfig {
+            <<Entity>>
+            +Long id
+            +String repositoryUrl
+        }
+        class ChangeLeadTime {
+            <<Entity>>
+            +Long id
+            +Commit commit
+            +Deployment deployment
+            +long leadTimeInSeconds
+        }
+        class SyncStatus {
+            <<Entity>>
+            +String jobName
+            +LocalDateTime lastSuccessfulRun
+        }
+
+        class UserRepository {
+            <<Repository>>
+            +Optional<User> findByGithubUsernameIgnoreCase(String)
+            +List<User> findAllByActiveTrue()
+        }
+        class RoleRepository {
+            <<Repository>>
+            +Optional<Role> findByName(RoleName)
+        }
+        class CommitRepository {
+            <<Repository>>
+            +Optional<Commit> findBySha(String)
+        }
+        class DeploymentRepository {
+            <<Repository>>
+            +List<Deployment> findByLeadTimeProcessedFalseAndEnvironment(...)
+        }
+        class PullRequestRepository {
+            <<Repository>>
+        }
+        class RepositoryConfigRepository {
+            <<Repository>>
+        }
+        class ChangeLeadTimeRepository {
+            <<Repository>>
+        }
+        class SyncStatusRepository {
+            <<Repository>>
+        }
+
+        class GithubUserCollector {
+            <<Interface>>
+            +List<OrganizationMember> getOrganizationMembers(String)
+        }
+        class GithubCommitCollector {
+            <<Interface>>
+            +List<GithubCommitDto> getCommits(String, String, LocalDateTime)
+        }
+        class GithubPullRequestCollector {
+            <<Interface>>
+            +List<GithubPullRequestDto> getPullRequests(String, String, LocalDateTime)
+        }
+        class GithubDeploymentCollector {
+            <<Interface>>
+            +List<GitHubWorkflowRunDto> getWorkflowRuns(...)
+        }
+        class GithubUserAuthenticator {
+            <<Interface>>
+            +boolean isUserMemberOfOrganization(String, String)
+        }
+    }
+
+    namespace module_collector {
+        class GithubClientImpl {
+            <<Component>>
+            -WebClient webClient
+        }
+        class UserSyncService {
+            <<Service>>
+            +void synchronizeUsers(String)
+        }
+        class CommitSyncService {
+            <<Service>>
+            +void syncCommits()
+        }
+        class PullRequestSyncService {
+            <<Service>>
+            +void syncPullRequests()
+        }
+        class DeploymentSyncService {
+            <<Service>>
+            +void syncDeployments()
+        }
+    }
+
+    namespace module_processor {
+        class LeadTimeCalculationService {
+            <<Service>>
+            +void calculate()
+        }
+        class DeploymentFrequencyService {
+            <<Service>>
+            +List<DeploymentFrequency> calculate(...)
+        }
+    }
+
+    namespace module_api {
+        class UserController {
+            <<Controller>>
+            +ResponseEntity<UserDto> getCurrentUser()
+            +List<UserSummaryDto> getActiveUsers()
+        }
+        class DashboardController {
+            <<Controller>>
+            +ResponseEntity<String> showDashboard()
+        }
+        class UserDto { <<DTO>> }
+        class UserSummaryDto { <<DTO>> }
+    }
+
+    namespace module_administration {
+        class DataInitializer {
+            <<Component>>
+            +void run(ApplicationArguments)
+        }
+        class AuthenticationService {
+            <<Service>>
+            +LoginProcessingResult processNewLogin(GithubUserDto)
+        }
+    }
+
+%% --- Relationships ---
+
+%% module_domain relationships
+    User "1" *-- "0..*" Role : roles
+    Commit "1" *-- "0..*" Commit : parents
+    PullRequest "0..*" --* "1" RepositoryConfig
+    ChangeLeadTime "0..*" --* "1" Commit
+    ChangeLeadTime "0..*" --* "1" Deployment
+
+%% Dependencies within module_domain
+    UserRepository ..> User
+    RoleRepository ..> Role
+    CommitRepository ..> Commit
+    DeploymentRepository ..> Deployment
+    PullRequestRepository ..> PullRequest
+    RepositoryConfigRepository ..> RepositoryConfig
+    ChangeLeadTimeRepository ..> ChangeLeadTime
+    SyncStatusRepository ..> SyncStatus
+
+%% module_collector relationships
+    GithubClientImpl --|> GithubUserCollector
+    GithubClientImpl --|> GithubCommitCollector
+    GithubClientImpl --|> GithubPullRequestCollector
+    GithubClientImpl --|> GithubDeploymentCollector
+    GithubClientImpl --|> GithubUserAuthenticator
+
+    UserSyncService --> GithubUserCollector
+    UserSyncService --> UserRepository
+
+    CommitSyncService --> GithubCommitCollector
+    CommitSyncService --> CommitRepository
+    CommitSyncService --> RepositoryConfigRepository
+
+    PullRequestSyncService --> GithubPullRequestCollector
+    PullRequestSyncService --> PullRequestRepository
+    PullRequestSyncService --> RepositoryConfigRepository
+
+    DeploymentSyncService --> GithubDeploymentCollector
+    DeploymentSyncService --> DeploymentRepository
+    DeploymentSyncService --> LeadTimeCalculationService
+
+%% module_processor relationships
+    LeadTimeCalculationService --> DeploymentRepository
+    LeadTimeCalculationService --> CommitRepository
+    LeadTimeCalculationService --> ChangeLeadTimeRepository
+    DeploymentFrequencyService --> DeploymentRepository
+
+%% module_api relationships
+    UserController --> UserRepository
+    UserController ..> UserDto
+    UserController ..> UserSummaryDto
+
+%% module_administration relationships
+    DataInitializer --> RoleRepository
+    DataInitializer --> RepositoryConfigRepository
+    AuthenticationService --> UserRepository
+    AuthenticationService --> RoleRepository
+    AuthenticationService --> GithubUserAuthenticator
+```
+
+
+### Modelo Físico de Base de Datos (ERD)
+
+```mermaid
+erDiagram
+    USERS {
+        bigint id PK
+        bigint github_id "ID de GitHub (único)"
+        varchar github_username "Nombre de usuario de GitHub (único)"
+        varchar email
+        varchar name
+        varchar avatar_url
+        boolean active
+    }
+
+    ROLES {
+        bigint id PK
+        varchar name "Nombre del rol (único, enum)"
+    }
+
+    USER_ROLES {
+        bigint user_id FK
+        bigint role_id FK
+    }
+
+    COMMIT {
+        varchar sha PK "SHA del commit"
+        varchar author
+        text message
+        datetime date
+    }
+
+    COMMIT_PARENT {
+        varchar commit_sha FK "SHA del commit hijo"
+        varchar parent_sha FK "SHA del commit padre"
+    }
+
+    DEPLOYMENT {
+        bigint id PK
+        bigint github_id "ID de GitHub (único)"
+        varchar name
+        varchar sha "SHA del commit asociado"
+        varchar head_branch
+        varchar environment
+        varchar status
+        varchar conclusion
+        datetime created_at
+        datetime updated_at
+        boolean lead_time_processed
+    }
+
+    REPOSITORY_CONFIG {
+        bigint id PK
+        varchar repository_url
+    }
+
+    PULL_REQUESTS {
+        bigint id PK
+        bigint repository_id FK
+        varchar state
+        datetime created_at
+        datetime merged_at
+        varchar first_commit_sha "SHA del primer commit del PR"
+    }
+
+    CHANGE_LEAD_TIME {
+        bigint id PK
+        varchar commit_sha FK
+        bigint deployment_id FK
+        bigint lead_time_in_seconds
+    }
+
+    USERS ||--o{ USER_ROLES : "tiene"
+    ROLES ||--o{ USER_ROLES : "tiene"
+    COMMIT ||--o{ COMMIT_PARENT : "es padre de"
+    COMMIT_PARENT }o--|| COMMIT : "es hijo de"
+    DEPLOYMENT }o--|| COMMIT : "asociado a"
+    PULL_REQUESTS }o--|| REPOSITORY_CONFIG : "pertenece a"
+    PULL_REQUESTS }o--|| COMMIT : "inicia con"
+    CHANGE_LEAD_TIME }o--|| COMMIT : "calculado para"
+    CHANGE_LEAD_TIME }o--|| DEPLOYMENT : "calculado para"
+```
+
+# Diccionario de Datos
+
+A continuación se detallan las tablas que componen la base de datos de la solución, junto con sus respectivas columnas y descripciones.
+
+### Tabla: `USERS`
+Almacena la información de los usuarios sincronizados desde GitHub.
+
+| Columna           | Tipo de Dato | Descripción                                            |
+|-------------------|--------------|--------------------------------------------------------|
+| `id`              | `bigint`     | Identificador único de la entidad (PK).                |
+| `github_id`       | `bigint`     | ID único del usuario en GitHub.                        |
+| `github_username` | `varchar`    | Nombre de usuario en GitHub.                           |
+| `email`           | `varchar`    | Correo electrónico del usuario.                        |
+| `name`            | `varchar`    | Nombre completo del usuario.                           |
+| `avatar_url`      | `varchar`    | URL del avatar del usuario en GitHub.                  |
+| `active`          | `boolean`    | Indica si el usuario está activo en la organización.   |
+
+### Tabla: `ROLES`
+Define los roles que pueden ser asignados a los usuarios.
+
+| Columna | Tipo de Dato | Descripción                               |
+|---------|--------------|-------------------------------------------|
+| `id`    | `bigint`     | Identificador único de la entidad (PK).   |
+| `name`  | `varchar`    | Nombre del rol (ej. `ADMIN`, `DEVELOPER`). |
+
+### Tabla: `USER_ROLES`
+Tabla de unión para la relación muchos a muchos entre `USERS` y `ROLES`.
+
+| Columna   | Tipo de Dato | Descripción                               |
+|-----------|--------------|-------------------------------------------|
+| `user_id` | `bigint`     | Clave foránea que referencia a `USERS.id`.  |
+| `role_id` | `bigint`     | Clave foránea que referencia a `ROLES.id`.  |
+
+### Tabla: `COMMIT`
+Almacena información de los commits de los repositorios configurados.
+
+| Columna  | Tipo de Dato | Descripción                                   |
+|----------|--------------|-----------------------------------------------|
+| `sha`    | `varchar`    | Hash SHA del commit (PK).                     |
+| `author` | `varchar`    | Autor del commit.                             |
+| `message`| `text`       | Mensaje del commit.                           |
+| `date`   | `datetime`   | Fecha y hora en que se realizó el commit.     |
+
+### Tabla: `COMMIT_PARENT`
+Tabla de unión para la relación de paternidad (muchos a muchos) entre commits.
+
+| Columna      | Tipo de Dato | Descripción                                    |
+|--------------|--------------|------------------------------------------------|
+| `commit_sha` | `varchar`    | Clave foránea que referencia al commit hijo.   |
+| `parent_sha` | `varchar`    | Clave foránea que referencia al commit padre.  |
+
+### Tabla: `DEPLOYMENT`
+Registra los despliegues realizados a través de GitHub Actions.
+
+| Columna               | Tipo de Dato | Descripción                                                     |
+|-----------------------|--------------|-----------------------------------------------------------------|
+| `id`                  | `bigint`     | Identificador único de la entidad (PK).                         |
+| `github_id`           | `bigint`     | ID único del despliegue en GitHub.                              |
+| `name`                | `varchar`    | Nombre del despliegue.                                          |
+| `sha`                 | `varchar`    | SHA del commit que fue desplegado.                              |
+| `head_branch`         | `varchar`    | Rama que se desplegó.                                           |
+| `environment`         | `varchar`    | Entorno de despliegue (ej. `production`).                       |
+| `status`              | `varchar`    | Estado del workflow de despliegue.                              |
+| `conclusion`          | `varchar`    | Conclusión del workflow (ej. `success`, `failure`).             |
+| `created_at`          | `datetime`   | Fecha y hora de creación del despliegue.                        |
+| `updated_at`          | `datetime`   | Fecha y hora de la última actualización del despliegue.         |
+| `lead_time_processed` | `boolean`    | Indica si el lead time para este despliegue ya fue calculado.   |
+
+### Tabla: `REPOSITORY_CONFIG`
+Almacena la configuración de los repositorios a monitorear.
+
+| Columna          | Tipo de Dato | Descripción                               |
+|------------------|--------------|-------------------------------------------|
+| `id`             | `bigint`     | Identificador único de la entidad (PK).   |
+| `repository_url` | `varchar`    | URL del repositorio de GitHub.            |
+
+### Tabla: `PULL_REQUESTS`
+Registra los Pull Requests de los repositorios configurados.
+
+| Columna            | Tipo de Dato | Descripción                                                     |
+|--------------------|--------------|-----------------------------------------------------------------|
+| `id`               | `bigint`     | Identificador único de la entidad (PK).                         |
+| `repository_id`    | `bigint`     | Clave foránea que referencia a `REPOSITORY_CONFIG.id`.          |
+| `state`            | `varchar`    | Estado del Pull Request (ej. `open`, `closed`).                 |
+| `created_at`       | `datetime`   | Fecha y hora de creación del Pull Request.                      |
+| `merged_at`        | `datetime`   | Fecha y hora en que se fusionó el Pull Request.                 |
+| `first_commit_sha` | `varchar`    | SHA del primer commit asociado al Pull Request.                 |
+
+### Tabla: `CHANGE_LEAD_TIME`
+Almacena los cálculos de la métrica "Lead Time for Changes".
+
+| Columna                | Tipo de Dato | Descripción                                                     |
+|------------------------|--------------|-----------------------------------------------------------------|
+| `id`                   | `bigint`     | Identificador único de la entidad (PK).                         |
+| `commit_sha`           | `varchar`    | Clave foránea que referencia al `COMMIT.sha` inicial.           |
+| `deployment_id`        | `bigint`     | Clave foránea que referencia al `DEPLOYMENT.id` final.          |
+| `lead_time_in_seconds` | `bigint`     | Tiempo total en segundos entre el primer commit y el despliegue.|
+
+
 
 ```mermaid
 erDiagram
@@ -684,9 +1100,1166 @@ erDiagram
     DEPLOYMENTS }o--|{ INCIDENTS : "causa"
 ```
 
-### A.2: Diagramas de Implementación (Trabajo en Progreso)
+### A.2: Diagramas de Implementación
 
-Esta sección contendrá diagramas de Clases y de secuencia detallados para flujos de negocio complejos a medida que se implementen.
+#### HU-1: Iniciar Sesión
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    direction LR
+
+    subgraph module_api
+        direction TB
+        class SecurityConfig {
+            +securityFilterChain(...)
+        }
+        class Oauth2LoginSuccessHandler {
+            -authenticationService: AuthenticationService
+            +onAuthenticationSuccess(...)
+        }
+        class UserSynchronizationFilter {
+            -userRepository: UserRepository
+            +doFilterInternal(...)
+        }
+    end
+
+    subgraph module_administration
+        direction TB
+        class AuthenticationService {
+            -userRepository: UserRepository
+            -roleRepository: RoleRepository
+            -githubAuthenticator: GithubUserAuthenticator
+            +processNewLogin(...): LoginProcessingResult
+        }
+        class GithubUserAuthenticator {
+            +isUserMemberOfOrganization(...): boolean
+        }
+        class GithubUserDto {
+            +username: String
+            +email: String
+            +name: String
+        }
+        class LoginProcessingResult {
+            +user: User
+            +isInitialAdmin: boolean
+        }
+    end
+
+    subgraph module_domain
+        direction TB
+        class User {
+            -id: Long
+            -githubUsername: String
+            -email: String
+            -roles: Set<Role>
+        }
+        class Role {
+            -id: Long
+            -name: RoleName
+        }
+        class UserRepository {
+            +findByGithubUsernameIgnoreCase(...): Optional<User>
+        }
+        class RoleRepository {
+            +findByName(...): Optional<Role>
+        }
+    end
+
+    %% --- Relaciones ---
+    SecurityConfig ..> Oauth2LoginSuccessHandler : configures
+    SecurityConfig ..> UserSynchronizationFilter : registers
+
+    Oauth2LoginSuccessHandler ..> AuthenticationService : uses
+    Oauth2LoginSuccessHandler ..> GithubUserDto : creates
+    AuthenticationService ..> LoginProcessingResult : returns
+
+    AuthenticationService ..> UserRepository : uses
+    AuthenticationService ..> RoleRepository : uses
+    AuthenticationService ..> GithubUserAuthenticator : uses
+
+    UserSynchronizationFilter ..> UserRepository : uses
+
+    UserRepository ..> User : manages
+    RoleRepository ..> Role : manages
+    User "1" *-- "many" Role : has
+```
+
+##### Notas de Arquitectura
+
+1.  **Flujo de Inicio de Sesión**: El flujo comienza con `Oauth2LoginSuccessHandler`, que delega la lógica de negocio a `AuthenticationService` en el `module_administration`, pasándole un DTO (`GithubUserDto`). El servicio devuelve un DTO de resultado (`LoginProcessingResult`) que el handler utiliza para decidir la redirección.
+2.  **Sincronización de Sesión**: En cada petición subsecuente, `UserSynchronizationFilter` intercepta la llamada. Verifica que el usuario autenticado en la sesión exista en la base de datos. Si no existe (ej. por un reinicio de la BD en memoria), la sesión se invalida forzando una nueva autenticación. Esto asegura la integridad del sistema en todo momento.
+3.  **Separación de Módulos**: El diagrama resalta la clara separación de responsabilidades:
+    *   `module_api`: Maneja la configuración de seguridad web y los filtros HTTP.
+    *   `module_administration`: Contiene la lógica de negocio de la autenticación y la gestión de usuarios.
+    *   `module_domain`: Define las entidades de base de datos y sus repositorios.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    users {
+        bigint id PK "Clave Primaria"
+        bigint github_id UK "ID único de GitHub"
+        varchar github_username UK "Nombre de usuario único de GitHub"
+        varchar email "Email del usuario"
+    }
+
+    roles {
+        bigint id PK "Clave Primaria"
+        varchar name UK "Nombre del rol (e.g., ADMIN, DEVELOPER)"
+    }
+
+    user_roles {
+        bigint user_id PK, FK "Referencia a users.id"
+        bigint role_id PK, FK "Referencia a roles.id"
+    }
+
+    users ||--o{ user_roles : "tiene"
+    roles ||--o{ user_roles : "pertenece a"
+```
+
+**Explicación del Diagrama:**
+
+*   **`users`**: Almacena la información de cada usuario que ha iniciado sesión. Se utilizan `github_id` y `github_username` como identificadores únicos para evitar duplicados.
+*   **`roles`**: Es una tabla maestra que contiene los roles disponibles en el sistema (ej. `ADMIN`, `DEVELOPER`).
+*   **`user_roles`**: Es la tabla de unión (o tabla pivote) que resuelve la relación "Muchos a Muchos". Cada fila en esta tabla vincula un usuario (`user_id`) con un rol (`role_id`), permitiendo que un usuario tenga múltiples roles y que un rol sea asignado a múltiples usuarios.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant "Spring Security" as Spring
+    participant "Oauth2LoginSuccessHandler" as Handler
+    participant "AuthenticationService" as AuthService
+    participant "GithubUserAuthenticator" as GithubAuth
+    participant "UserRepository" as UserRepo
+    participant "RoleRepository" as RoleRepo
+    participant "Database" as DB
+
+    User->>+Browser: 1. Clic en "Iniciar Sesión"
+    Browser->>+Spring: 2. GET /oauth2/authorization/github
+    Spring-->>-Browser: 3. Redirect a github.com
+
+    %% Usuario se autentica en GitHub y autoriza %%
+
+    Browser->>+Spring: 4. Redirigido de vuelta con código de autorización
+    Spring->>Spring: 5. Intercambia código por token y obtiene datos del usuario de GitHub
+    
+    Spring->>+Handler: 6. onAuthenticationSuccess(authentication)
+    
+    Handler->>+AuthService: 7. processNewLogin(githubUserDto)
+    
+    AuthService->>+GithubAuth: 8. isUserMemberOfOrganization()
+    GithubAuth-->>-AuthService: Retorna `true`
+    
+    AuthService->>+UserRepo: 9. findByGithubUsernameIgnoreCase()
+    UserRepo->>+DB: SELECT * FROM users...
+    DB-->>-UserRepo: Retorna Optional<User>
+    
+    alt El usuario es nuevo
+        AuthService->>+RoleRepo: 10a. findByName('DEVELOPER')
+        
+        RoleRepo->>+DB: SELECT * FROM roles...
+        DB-->>-RoleRepo: Retorna rol 'DEVELOPER'
+        
+        AuthService->>+UserRepo: 10b. save(newUser)
+        UserRepo->>+DB: INSERT INTO users, user_roles...
+        DB-->>-UserRepo: 
+    end
+    
+    AuthService-->>-Handler: 11. Retorna LoginProcessingResult
+    
+    Handler-->>-Spring: 12. Determina URL de redirección
+    
+    Spring-->>-Browser: 13. Envía respuesta de redirección HTTP 302
+    Browser-->>-User: 14. Muestra la página de destino
+```
+
+**Explicación del Flujo:**
+
+1.  **Inicio (1-3):** El usuario inicia el proceso. El navegador es redirigido por Spring Security a GitHub para que el usuario se autentique y autorice la aplicación.
+2.  **Callback de GitHub (4-5):** GitHub redirige al usuario de vuelta a la aplicación con un código. Spring Security lo intercepta y lo intercambia por los datos del perfil del usuario de GitHub.
+3.  **Handler Personalizado (6):** Una vez que Spring Security confirma la autenticación, cede el control a nuestro `Oauth2LoginSuccessHandler`.
+4.  **Procesamiento del Login (7-8):** El handler invoca al `AuthenticationService`, que primero verifica si el usuario pertenece a la organización de GitHub requerida.
+5.  **Verificación de Existencia (9):** El servicio consulta la base de datos a través del `UserRepository` para ver si el usuario ya existe en el sistema.
+6.  **Flujo de Usuario Nuevo (10a-10b):** Si el usuario no existe, el `AuthenticationService` le asigna un rol por defecto (consultando el `RoleRepository`) y lo guarda en la base de datos.
+7.  **Finalización y Redirección (11-14):** El servicio retorna el resultado al handler. El handler determina la página a la que debe ser redirigido el usuario y le indica a Spring Security que envíe la redirección final al navegador.
+
+#### HU-2: Cerrar Sesión
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    class SecurityConfig {
+        +securityFilterChain(http : HttpSecurity) SecurityFilterChain
+    }
+    class HttpSecurity {
+        +logout(customizer) HttpSecurity
+    }
+    class LogoutConfigurer {
+        +logoutSuccessHandler(handler)
+    }
+    class LogoutSuccessHandler {
+        <<Interface>>
+        +onLogoutSuccess(request, response, authentication)
+    }
+
+    SecurityConfig --> HttpSecurity : configures
+    HttpSecurity --> LogoutConfigurer : uses
+    LogoutConfigurer --> LogoutSuccessHandler : uses
+```
+
+**Explicación del Diagrama:**
+
+*   **`SecurityConfig`**: Es la clase principal donde se define toda la cadena de filtros de seguridad.
+*   **`HttpSecurity`**: Es el objeto constructor que `SecurityConfig` utiliza para definir las reglas. El método `.logout()` inicia la configuración del cierre de sesión.
+*   **`LogoutConfigurer`**: Es el objeto devuelto por `.logout()`, que permite personalizar el comportamiento, como especificar un `logoutSuccessHandler`.
+*   **`LogoutSuccessHandler`**: Es la interfaz que nuestro manejador personalizado (implementado como una lambda en el código) cumple. Spring Security invoca a este manejador después de invalidar la sesión.
+
+##### Diagrama de Base de Datos (ERD)
+
+No aplica. La operación de cierre de sesión es un proceso de gestión de sesión que no involucra ninguna interacción con la base de datos. El esquema de la base de datos no se ve afectado.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser/Client as "Browser/Client (SPA)"
+    participant SpringSecurity as "Spring Security Filter Chain"
+    participant LogoutSuccessHandler as "Custom LogoutSuccessHandler"
+
+    User->>+Browser/Client: 1. Clic en "Cerrar Sesión"
+
+    Browser/Client->>+SpringSecurity: 2. POST /logout
+
+    SpringSecurity->>SpringSecurity: 3. Invalida la sesión (HttpSession)
+    note right of SpringSecurity: Destruye la sesión y la cookie de sesión
+
+    SpringSecurity->>+LogoutSuccessHandler: 4. onLogoutSuccess(...)
+
+    LogoutSuccessHandler->>LogoutSuccessHandler: 5. Log "User logged out"
+    LogoutSuccessHandler-->>-SpringSecurity: 6. Establece response.setStatus(200 OK)
+
+    SpringSecurity-->>-Browser/Client: 7. HTTP 200 OK
+
+    Browser/Client->>+Browser/Client: 8. Recibe 200 OK, ejecuta lógica de redirección
+    Browser/Client-->>-User: 9. Redirige a la página de inicio ('/')
+```
+
+**Explicación del Diagrama:**
+
+1.  **Inicio (1-2):** El usuario hace clic en el botón de cerrar sesión en la aplicación de frontend (SPA). El cliente envía una petición `POST` al endpoint `/logout` del backend.
+2.  **Procesamiento de Spring Security (3):** La cadena de filtros de Spring Security intercepta la petición. Automáticamente, invalida la sesión HTTP, elimina el contexto de seguridad y borra la cookie de sesión del usuario.
+3.  **Manejador Personalizado (4-6):** Una vez que la sesión ha sido destruida, Spring Security invoca nuestro `LogoutSuccessHandler` personalizado. Este manejador no redirige, simplemente ejecuta su lógica (en este caso, registrar un mensaje en el log) y establece el estado de la respuesta HTTP a `200 OK`.
+4.  **Respuesta del Backend (7):** El servidor envía la respuesta `200 OK` al cliente, confirmando que el cierre de sesión fue exitoso.
+5.  **Redirección del Cliente (8-9):** La aplicación frontend recibe la respuesta `200 OK`. Su código interpreta esta respuesta como una señal de éxito y es **responsable** de redirigir al usuario a la página de inicio de sesión o a la página de bienvenida.
+
+#### HU-3: Configuración Inicial
+
+##### Diagrama de Clases (Corregido con Anotación `<<Interface>>`)
+```mermaid
+classDiagram
+    class Oauth2LoginSuccessHandler {
+        -AuthenticationService authService
+        +onAuthenticationSuccess(auth)
+    }
+
+    class AuthenticationService {
+        -UserRepository userRepository
+        -RoleRepository roleRepository
+        -Environment environment
+        +processNewLogin(githubUser) LoginProcessingResult
+        -isInitialBootstrap() boolean
+        -handleInitialBootstrap(githubUser) LoginProcessingResult
+        -handleRegularLogin(githubUser) LoginProcessingResult
+    }
+
+    class UserRepository {
+        <<Interface>>
+        +existsByRoles_Name(roleName) boolean
+        +findByGithubUsernameIgnoreCase(username) Optional~User~
+        +save(user) User
+    }
+
+    class RoleRepository {
+        <<Interface>>
+        +findByName(name) Optional~Role~
+    }
+    
+    class Environment {
+        +getProperty(key) String
+    }
+
+    class User {
+        -String githubUsername
+        -Set~Role~ roles
+    }
+
+    class Role {
+        -RoleName name
+    }
+
+    Oauth2LoginSuccessHandler --> AuthenticationService : uses
+    AuthenticationService --> UserRepository : uses
+    AuthenticationService --> RoleRepository : uses
+    AuthenticationService --> Environment : uses
+    AuthenticationService ..> User : creates/updates
+    AuthenticationService ..> Role : uses
+    User "1" *-- "0..*" Role : roles
+```
+
+**Explicación del Diagrama:**
+
+1.  **Punto de Entrada:** El flujo comienza en `Oauth2LoginSuccessHandler` después de una autenticación exitosa en GitHub, que a su vez invoca a `AuthenticationService`.
+2.  **Orquestador Central:** `AuthenticationService` es la clase principal. Contiene la lógica para decidir si se trata de un inicio de sesión normal o del "arranque inicial".
+3.  **La Decisión Clave:** Para tomar esta decisión, `AuthenticationService` utiliza el `UserRepository` llamando al método `existsByRoles_Name('ADMIN')`. Este método es la pieza central de la HU-3, ya que permite al sistema saber si ya existe un administrador.
+4.  **Configuración Externa:** En el caso de ser el arranque inicial, `AuthenticationService` consulta el objeto `Environment` de Spring para obtener el nombre de usuario del administrador designado desde una propiedad de configuración (`dora.initial-admin-username`). Esto desacopla la lógica del nombre de usuario específico.
+5.  **Creación de Usuario:** Dependiendo del resultado, se utiliza el `RoleRepository` para obtener el rol `ADMIN` o `DEVELOPER`, y el `UserRepository` para persistir la nueva entidad `User` con su rol correspondiente.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    users {
+        bigint id PK "Clave Primaria"
+        bigint github_id UK "ID único de GitHub"
+        varchar github_username UK "Nombre de usuario único de GitHub"
+        varchar email "Email del usuario"
+    }
+
+    roles {
+        bigint id PK "Clave Primaria"
+        varchar name UK "Nombre del rol (e.g., ADMIN, DEVELOPER)"
+    }
+
+    user_roles {
+        bigint user_id PK, FK "Referencia a users.id"
+        bigint role_id PK, FK "Referencia a roles.id"
+    }
+
+    users ||--o{ user_roles : "tiene"
+    roles ||--o{ user_roles : "pertenece a"
+```
+
+**Explicación del Diagrama:**
+
+*   **`users`**: Almacena la información de cada usuario. La lógica de la `HU-3` simplemente inserta un nuevo registro aquí.
+*   **`roles`**: Tabla maestra que contiene los roles `ADMIN` y `DEVELOPER`.
+*   **`user_roles`**: Tabla de unión. Para la `HU-3`, la lógica inserta un registro que vincula al primer usuario con el rol `ADMIN`.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    participant SpringSecurity
+    participant Oauth2LoginSuccessHandler
+    participant AuthenticationService
+    participant UserRepository
+    participant Environment
+    participant RoleRepository
+
+    SpringSecurity->>Oauth2LoginSuccessHandler: onAuthenticationSuccess(auth)
+    Oauth2LoginSuccessHandler->>AuthenticationService: processNewLogin(githubUser)
+    
+    AuthenticationService->>UserRepository: existsByRoles_Name("ADMIN")
+    UserRepository-->>AuthenticationService: false
+    
+    Note over AuthenticationService: El sistema detecta que no hay administradores. Inicia el flujo de "bootstrap".
+
+    AuthenticationService->>Environment: getProperty("dora.initial-admin-username")
+    Environment-->>AuthenticationService: "expected_admin_username"
+
+    Note over AuthenticationService: Compara el usuario actual con el esperado. Asumimos que coinciden.
+
+    AuthenticationService->>RoleRepository: findByName("ADMIN")
+    RoleRepository-->>AuthenticationService: adminRole
+    
+    AuthenticationService->>UserRepository: save(newUserWithAdminRole)
+    UserRepository-->>AuthenticationService: savedUser
+    
+    AuthenticationService-->>Oauth2LoginSuccessHandler: LoginProcessingResult(REDIRECT_TO_CONFIG)
+    
+    Note over Oauth2LoginSuccessHandler: El manejador recibe la instrucción de redirigir.
+    Oauth2LoginSuccessHandler->>Browser/Client: HTTP Redirect to /system-configuration
+```
+
+**Explicación del Diagrama:**
+
+1.  **Inicio:** El flujo comienza cuando `SpringSecurity`, tras una autenticación exitosa, invoca a `Oauth2LoginSuccessHandler`.
+2.  **Procesamiento:** El `Handler` delega la lógica de negocio a `AuthenticationService`.
+3.  **La Decisión Clave:** `AuthenticationService` consulta al `UserRepository` para ver si ya existe algún usuario con el rol `ADMIN`.
+4.  **Flujo de "Bootstrap":** Al recibir `false` como respuesta, el servicio entiende que es el primer inicio de sesión.
+5.  **Configuración del Admin:** Lee la variable de entorno (`dora.initial-admin-username`) para saber quién debe ser el administrador.
+6.  **Creación del Admin:** Asumiendo que el usuario que ha iniciado sesión es el correcto, `AuthenticationService` obtiene el rol `ADMIN` del `RoleRepository` y guarda el nuevo usuario en la base de datos a través del `UserRepository`.
+7.  **Redirección:** Finalmente, `AuthenticationService` devuelve un resultado especial (`REDIRECT_TO_CONFIG`) que instruye al `Oauth2LoginSuccessHandler` a redirigir al usuario a la página de configuración del sistema, cumpliendo así con el Criterio de Aceptación 3.2.
+
+#### HU-5: Gestionar Roles
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    direction LR
+
+    subgraph module_api
+        direction TB
+        class UserController {
+            -userRepository: UserRepository
+            +getActiveUsers(): List<UserSummaryDto>
+            +getUserById(Long): UserDetailDto
+            -mapToUserSummaryDto(User): UserSummaryDto
+        }
+        class UserSummaryDto {
+            +githubUsername: String
+            +name: String
+            +avatarUrl: String
+            +roles: Set<String>
+        }
+        class UserDetailDto {
+            +id: Long
+            +githubUsername: String
+            +name: String
+            +email: String
+            +roles: Set<String>
+            +active: boolean
+        }
+    end
+
+    subgraph module_collector
+        direction TB
+        class UserSyncService {
+            -githubUserCollector: GithubUserCollector
+            -userRepository: UserRepository
+            -roleRepository: RoleRepository
+            -organizationName: String
+            +synchronizeUsers(String): void
+            +scheduledSync(): void
+            #ensureUserHasDeveloperRole(User): void
+        }
+        class GithubUserCollector {
+            +getOrganizationMembers(String): List<OrganizationMember>
+        }
+        class OrganizationMember {
+            +id: Long
+            +login: String
+            +avatarUrl: String
+        }
+    end
+
+    subgraph module_domain
+        direction TB
+        class User {
+            -id: Long
+            -githubId: Long
+            -githubUsername: String
+            -email: String
+            -name: String
+            -avatarUrl: String
+            -active: boolean
+            -roles: Set<Role>
+        }
+        class Role {
+            -id: Long
+            -name: RoleName
+        }
+        class RoleName {
+            <<enumeration>>
+            ADMIN
+            ENGINEERING_MANAGER
+            TECH_LEAD
+            DEVELOPER
+        }
+        class UserRepository {
+            +findAllByActiveTrue(): List<User>
+            +findById(Long): Optional<User>
+            +findAll(): List<User>
+            +saveAll(List<User>): List<User>
+        }
+        class RoleRepository {
+            +findByName(RoleName): Optional<Role>
+        }
+    end
+
+    %% --- Relaciones ---
+    UserController ..> UserRepository : uses
+    UserController ..> UserSummaryDto : creates
+    UserController ..> UserDetailDto : creates
+
+    UserSyncService ..> GithubUserCollector : uses
+    UserSyncService ..> UserRepository : uses
+    UserSyncService ..> RoleRepository : uses
+    GithubUserCollector ..> OrganizationMember : returns
+
+    UserRepository ..> User : manages
+    RoleRepository ..> Role : manages
+    User "1" *-- "many" Role : has
+    Role ..> RoleName : uses
+```
+
+##### Notas de Arquitectura
+
+1.  **Flujo de Visualización**: El `UserController` en `module_api` expone endpoints REST para consultar usuarios y sus roles. Utiliza DTOs (`UserSummaryDto` y `UserDetailDto`) para transferir información al frontend, incluyendo los roles asignados a cada usuario mediante una transformación que convierte el `Set<Role>` a `Set<String>` con los nombres de los roles.
+2.  **Asignación Automática de Roles**: El `UserSyncService` en `module_collector` sincroniza usuarios desde GitHub y garantiza que todos los usuarios tengan al menos el rol `DEVELOPER` por defecto. El método `ensureUserHasDeveloperRole()` verifica si el usuario ya tiene el rol antes de agregarlo, evitando duplicados y manteniendo la idempotencia de las operaciones.
+3.  **Separación de Módulos**: El diagrama evidencia la arquitectura modular:
+    *   `module_api`: Maneja la capa de presentación REST con DTOs y documentación OpenAPI.
+    *   `module_collector`: Contiene la lógica de sincronización con sistemas externos (GitHub) y asignación automática de roles.
+    *   `module_domain`: Define las entidades de negocio, enumeraciones de roles y repositorios de acceso a datos.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    users {
+        bigint id PK "Clave Primaria"
+        bigint github_id UK "ID único de GitHub"
+        varchar github_username UK "Nombre de usuario único de GitHub"
+        varchar email "Email del usuario"
+        varchar name "Nombre completo"
+        varchar avatar_url "URL del avatar de GitHub"
+        boolean active "Estado del usuario en la organización"
+    }
+
+    roles {
+        bigint id PK "Clave Primaria"
+        varchar name UK "Nombre del rol: ADMIN, ENGINEERING_MANAGER, TECH_LEAD, DEVELOPER"
+    }
+
+    user_roles {
+        bigint user_id PK, FK "Referencia a users.id"
+        bigint role_id PK, FK "Referencia a roles.id"
+    }
+
+    users ||--o{ user_roles : "tiene"
+    roles ||--o{ user_roles : "pertenece a"
+```
+
+**Explicación del Diagrama:**
+
+*   **`users`**: Almacena la información completa de cada usuario, incluyendo datos de GitHub y estado de actividad. El campo `active` indica si el usuario sigue siendo miembro de la organización de GitHub.
+*   **`roles`**: Tabla maestra que contiene los cuatro roles del sistema: `ADMIN` (administrador con acceso completo), `ENGINEERING_MANAGER` (gestor de ingeniería), `TECH_LEAD` (líder técnico) y `DEVELOPER` (desarrollador, rol por defecto).
+*   **`user_roles`**: Tabla de unión que implementa la relación "Muchos a Muchos". La clave primaria compuesta (`user_id`, `role_id`) garantiza que no existan duplicados. Esta estructura permite que un usuario tenga múltiples roles simultáneamente (ej. un usuario puede ser TECH_LEAD y DEVELOPER al mismo tiempo).
+
+##### Diagrama de Secuencia: Listar Usuarios Activos con Roles
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant Browser
+    participant "UserController" as Controller
+    participant "UserRepository" as UserRepo
+    participant "Database" as DB
+
+    Admin->>+Browser: 1. Solicita página de gestión de usuarios
+    Browser->>+Controller: 2. GET /api/v1/users
+
+    Controller->>+UserRepo: 3. findAllByActiveTrue()
+    UserRepo->>+DB: 4. SELECT u.*, r.* FROM users u LEFT JOIN user_roles ur ON u.id = ur.user_id LEFT JOIN roles r ON ur.role_id = r.id WHERE u.active = true
+    DB-->>-UserRepo: 5. Retorna List<User> con roles cargados
+    UserRepo-->>-Controller: 6. Retorna List<User>
+
+    Controller->>Controller: 7. Transforma cada User a UserSummaryDto extrayendo roles
+
+    Controller-->>-Browser: 8. Retorna JSON con List de UserSummaryDto
+    Browser-->>-Admin: 9. Renderiza tabla de usuarios con columna de roles
+```
+
+**Explicación del Flujo:**
+
+1.  **Solicitud del Cliente (1-2):** El administrador accede a la página de gestión de usuarios. El frontend realiza una petición GET al endpoint `/api/v1/users`.
+2.  **Consulta a Base de Datos (3-6):** El `UserController` utiliza el `UserRepository` para obtener todos los usuarios activos. La consulta SQL realiza un LEFT JOIN con las tablas `user_roles` y `roles` para cargar los roles asociados a cada usuario en una sola consulta, optimizando el rendimiento (evitando el problema N+1).
+3.  **Transformación a DTO (7):** El controlador itera sobre cada usuario y extrae los nombres de los roles del `Set<Role>` convirtiéndolos a un `Set<String>` (ej. `["DEVELOPER", "TECH_LEAD"]`). Esto asegura que el frontend solo reciba información necesaria y en formato simple.
+4.  **Respuesta al Cliente (8-9):** El controlador retorna una lista JSON de `UserSummaryDto` que incluye el nombre de usuario, nombre completo, avatar y roles. El frontend renderiza esta información en una tabla mostrando los roles de cada usuario.
+
+##### Diagrama de Secuencia: Asignación Automática del Rol DEVELOPER
+```mermaid
+sequenceDiagram
+
+    Scheduler->>+SyncService: 1. scheduledSync() - Ejecución programada
+    SyncService->>+GithubAPI: 2. getOrganizationMembers(organizationName)
+    GithubAPI->>GithubAPI: 3. Llama a GitHub API
+    GithubAPI-->>-SyncService: 4. Retorna List<OrganizationMember>
+
+    SyncService->>+UserRepo: 5. findAll()
+    UserRepo->>+DB: 6. SELECT * FROM users
+    DB-->>-UserRepo: 7. Retorna List<User>
+    UserRepo-->>-SyncService: 8. Retorna usuarios locales
+
+    loop Para cada miembro de GitHub
+        alt Usuario NO existe localmente
+            SyncService->>SyncService: 9a. Crea nuevo User con datos de GitHub
+            SyncService->>+SyncService: 10a. ensureUserHasDeveloperRole(newUser)
+
+            SyncService->>SyncService: 11a. Verifica: user.getRoles().stream()<br/>.anyMatch(role -> role.getName() == DEVELOPER)
+
+            alt Usuario NO tiene rol DEVELOPER
+                SyncService->>+RoleRepo: 12a. findByName(RoleName.DEVELOPER)
+                RoleRepo->>+DB: 13a. SELECT * FROM roles WHERE name = 'DEVELOPER'
+                DB-->>-RoleRepo: 14a. Retorna Role(DEVELOPER)
+                RoleRepo-->>-SyncService: 15a. Retorna Role
+
+                SyncService->>SyncService: 16a. user.getRoles().add(developerRole)
+            end
+
+            SyncService-->>-SyncService: 17a. Usuario con rol DEVELOPER garantizado
+
+            Note over SyncService: Agrega newUser a lista de usuarios a guardar
+        else Usuario ya existe localmente
+            SyncService->>SyncService: 9b. Actualiza datos (avatarUrl, username)
+            SyncService->>+SyncService: 10b. ensureUserHasDeveloperRole(existingUser)
+
+            SyncService->>SyncService: 11b. Verifica roles del usuario
+
+            alt Usuario NO tiene rol DEVELOPER
+                SyncService->>+RoleRepo: 12b. findByName(RoleName.DEVELOPER)
+                RoleRepo->>+DB: 13b. SELECT * FROM roles WHERE name = 'DEVELOPER'
+                DB-->>-RoleRepo: 14b. Retorna Role(DEVELOPER)
+                RoleRepo-->>-SyncService: 15b. Retorna Role
+
+                SyncService->>SyncService: 16b. user.getRoles().add(developerRole)
+            end
+
+            SyncService-->>-SyncService: 17b. Usuario actualizado con rol DEVELOPER
+
+            Note over SyncService: Agrega existingUser a lista de usuarios a guardar
+        end
+    end
+
+    SyncService->>+UserRepo: 18. saveAll(usersToSave)
+    UserRepo->>+DB: 19. INSERT/UPDATE en users y user_roles
+    DB-->>-UserRepo: 20. Confirma transacción
+    UserRepo-->>-SyncService: 21. Retorna usuarios guardados
+
+    SyncService-->>-Scheduler: 22. Sincronización completada
+```
+
+**Explicación del Flujo:**
+
+1.  **Ejecución Programada (1):** El scheduler de Spring ejecuta `scheduledSync()` periódicamente según la configuración `@Scheduled`.
+2.  **Obtención de Miembros de GitHub (2-4):** El `UserSyncService` consulta la API de GitHub a través del `GithubUserCollector` para obtener la lista actualizada de miembros de la organización.
+3.  **Obtención de Usuarios Locales (5-8):** El servicio consulta todos los usuarios existentes en la base de datos para compararlos con los miembros de GitHub.
+4.  **Procesamiento de Cada Miembro (9-17):**
+    *   **Nuevo Usuario (9a-17a):** Si el miembro de GitHub no existe localmente, se crea un nuevo objeto `User`. Se invoca `ensureUserHasDeveloperRole()` que verifica mediante `anyMatch()` si el usuario tiene el rol DEVELOPER. Si no lo tiene, consulta el `RoleRepository` para obtener el rol DEVELOPER y lo agrega al `Set<Role>` del usuario.
+    *   **Usuario Existente (9b-17b):** Si el usuario ya existe, se actualizan sus datos (avatar, username). Se ejecuta el mismo proceso de `ensureUserHasDeveloperRole()` para garantizar que tenga el rol DEVELOPER. Si el usuario ya tiene otros roles (ej. TECH_LEAD), el rol DEVELOPER se agrega sin eliminar los roles existentes.
+5.  **Persistencia en Lote (18-21):** El servicio guarda todos los usuarios procesados en una sola operación `saveAll()`, optimizando las transacciones de base de datos. Se insertan o actualizan registros en las tablas `users` y `user_roles`.
+6.  **Finalización (22):** La sincronización se completa exitosamente, garantizando que todos los usuarios de la organización de GitHub estén sincronizados con roles correctos en el sistema.
+
+**Características Clave de la Implementación:**
+
+*   **Idempotencia:** La verificación con `anyMatch()` antes de agregar el rol asegura que no se creen duplicados, permitiendo ejecutar la sincronización múltiples veces sin efectos secundarios.
+*   **Preservación de Roles Existentes:** El método `ensureUserHasDeveloperRole()` solo agrega el rol DEVELOPER si falta, sin modificar otros roles que el usuario pueda tener (ADMIN, TECH_LEAD, etc.).
+*   **Operaciones en Lote:** El uso de `saveAll()` reduce el número de transacciones a la base de datos, mejorando el rendimiento en sincronizaciones con muchos usuarios.
+
+#### HU-10: Recolectar Datos de GitHub
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    direction LR
+
+    class TesisBachillerBackendMultimodularApplication {
+        <<Application>>
+        +main()
+    }
+
+    namespace Scheduler {
+        class PullRequestSyncService {
+            <<Service>>
+            +syncPullRequests() @Scheduled
+        }
+        class CommitSyncService {
+            <<Service>>
+            +syncCommits() @Scheduled
+        }
+    }
+
+    namespace CollectorModule {
+        class GithubPullRequestCollector {
+            <<Interface>>
+            +getPullRequests(owner, repo, since)
+        }
+        class GithubCommitCollector {
+            <<Interface>>
+            +getCommits(owner, repo, since)
+        }
+        class GithubClientImpl {
+            <<Component>>
+            +getPullRequests(owner, repo, since)
+            +getCommits(owner, repo, since)
+        }
+    }
+
+    namespace DomainPersistence {
+        class PullRequestRepository {
+            <<Repository>>
+            +findAll()
+            +saveAll(entities)
+        }
+        class CommitRepository {
+            <<Repository>>
+            +existsById(sha)
+            +saveAll(entities)
+        }
+        class CommitParentRepository {
+            <<Repository>>
+            +existsByCommitShaAndParentSha(childSha, parentSha)
+            +saveAll(entities)
+        }
+    }
+
+    %% --- Relaciones entre clases ---
+    
+    %% El scheduling se activa a nivel de aplicación
+    TesisBachillerBackendMultimodularApplication --|> PullRequestSyncService : triggers
+    TesisBachillerBackendMultimodularApplication --|> CommitSyncService : triggers
+
+    %% Relaciones desde los servicios de Sincronización
+    PullRequestSyncService --|> GithubPullRequestCollector : uses
+    CommitSyncService --|> GithubCommitCollector : uses
+    PullRequestSyncService --|> PullRequestRepository : uses
+    CommitSyncService --|> CommitRepository : uses
+    CommitSyncService --|> CommitParentRepository : uses
+
+    %% Relaciones dentro del módulo Collector
+    GithubClientImpl ..|> GithubPullRequestCollector : implements
+    GithubClientImpl ..|> GithubCommitCollector : implements
+```
+
+**Explicación del Diagrama:**
+
+*   **Punto de Entrada (`Scheduler`):** La aplicación principal habilita la programación de tareas. Los servicios `PullRequestSyncService` y `CommitSyncService` contienen métodos anotados con `@Scheduled` que actúan como los puntos de entrada del proceso.
+*   **Módulo de Colección (`CollectorModule`):** Los servicios de sincronización dependen de interfaces (`GithubPullRequestCollector`, `GithubCommitCollector`) para obtener los datos. Esto es un buen diseño que sigue el Principio de Inversión de Dependencias. La clase `GithubClientImpl` es la implementación concreta que se comunica con la API de GitHub.
+*   **Dominio y Persistencia (`DomainPersistence`):** Una vez que los datos son recolectados, los servicios utilizan los repositorios de Spring Data JPA (`PullRequestRepository`, `CommitRepository`, etc.) para guardar las entidades en la base de datos, asegurando la idempotencia al verificar si los datos ya existen.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    REPOSITORY_CONFIG {
+        bigint id PK
+        varchar owner "Dueño del repositorio (org/usuario)"
+        varchar name "Nombre del repositorio"
+    }
+
+    SYNC_STATUS {
+        varchar job_name PK "Nombre único del job (ej. COMMIT_SYNC)"
+        datetime last_successful_run "Timestamp de la última ejecución exitosa"
+    }
+
+    PULL_REQUESTS {
+        bigint id PK "ID numérico de GitHub"
+        bigint repository_id FK "Referencia a REPOSITORY_CONFIG"
+        varchar state "Estado (open, closed, merged)"
+        datetime created_at
+        datetime merged_at
+        varchar merge_commit_sha "SHA del commit de merge"
+    }
+
+    COMMITS {
+        varchar sha PK "SHA del commit"
+        bigint repository_id FK "Referencia a REPOSITORY_CONFIG"
+        datetime author_date "Timestamp del autor"
+        varchar message "Mensaje del commit"
+    }
+
+    COMMIT_PARENTS {
+        varchar commit_sha PK, FK "SHA del commit hijo"
+        varchar parent_sha PK, FK "SHA del commit padre"
+    }
+
+    REPOSITORY_CONFIG ||--|{ PULL_REQUESTS : "tiene"
+    REPOSITORY_CONFIG ||--|{ COMMITS : "tiene"
+    COMMITS |o--o{ COMMIT_PARENTS : "es hijo de"
+    COMMITS |o--o{ COMMIT_PARENTS : "es padre de"
+```
+
+**Explicación del Diagrama:**
+
+*   **`REPOSITORY_CONFIG`**: Almacena la configuración de los repositorios de GitHub que el sistema debe monitorear. Es el punto de partida para los jobs de sincronización.
+*   **`SYNC_STATUS`**: Tabla de metadatos crucial para la sincronización incremental. Cada `job_name` (ej. `COMMIT_SYNC`, `PULL_REQUEST_SYNC`) tiene un registro que guarda la fecha y hora de la última ejecución exitosa (`last_successful_run`).
+*   **`PULL_REQUESTS`**: Almacena los datos de los Pull Requests recolectados. El `id` es el identificador numérico de GitHub, lo que facilita la prevención de duplicados.
+*   **`COMMITS`**: Almacena los datos de los commits. La clave primaria es el `sha` del commit, que es único por naturaleza.
+*   **`COMMIT_PARENTS`**: Esta es una tabla de unión que resuelve la relación de grafo "Muchos a Muchos" que tienen los commits entre sí. Un commit puede tener múltiples padres (en el caso de un merge commit) y un commit puede ser el padre de múltiples hijos. Cada fila vincula un `commit_sha` (el hijo) con un `parent_sha` (el padre). Esta tabla es fundamental para poder reconstruir el historial de cambios y calcular métricas como el Lead Time.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    participant Scheduler as "Spring Scheduler"
+    participant SyncService as "PullRequestSyncService / CommitSyncService"
+    participant SyncStatusRepo as "SyncStatusRepository"
+    participant RepoConfigRepo as "RepositoryConfigRepository"
+    participant Collector as "Github*Collector"
+    participant GitHubApi as "GitHub API"
+    participant DomainRepo as "PullRequestRepository / CommitRepository"
+    participant DB as "Database"
+
+    Scheduler->>+SyncService: 1. execute() @Scheduled
+    
+    SyncService->>+RepoConfigRepo: 2. findAll()
+    RepoConfigRepo-->>-SyncService: 3. List<RepositoryConfig>
+
+    loop para cada RepositoryConfig
+        SyncService->>+SyncStatusRepo: 4. findById(jobName)
+        SyncStatusRepo-->>-SyncService: 5. Optional<SyncStatus> (con last_successful_run)
+
+        SyncService->>+Collector: 6. getPullRequests/getCommits(repo, since)
+        Collector->>+GitHubApi: 7. GET /repos/{owner}/{repo}/pulls?since=...
+        GitHubApi-->>-Collector: 8. Lista de DTOs de GitHub
+        Collector-->>-SyncService: 9. Lista de DTOs
+
+        SyncService->>+DomainRepo: 10. findByIds(ids_from_dtos)
+        DomainRepo-->>-SyncService: 11. Lista de entidades existentes
+
+        note over SyncService: Compara DTOs con entidades existentes para encontrar solo los nuevos.
+
+        SyncService->>+DomainRepo: 12. saveAll(nuevas_entidades)
+        DomainRepo->>+DB: INSERT INTO ...
+        DB-->>-DomainRepo: 
+        DomainRepo-->>-SyncService: 
+
+        SyncService->>+SyncStatusRepo: 13. save(updatedSyncStatus)
+        SyncStatusRepo->>+DB: UPDATE sync_status SET ...
+        DB-->>-SyncStatusRepo: 
+        SyncStatusRepo-->>-SyncService: 
+    end
+```
+
+**Explicación del Diagrama:**
+
+1.  **Disparo Programado (1):** El `Scheduler` de Spring invoca automáticamente el método anotado con `@Scheduled` en el servicio de sincronización (ej. `PullRequestSyncService`).
+2.  **Obtener Repositorios (2-3):** El servicio consulta la base de datos para obtener la lista de todos los repositorios que deben ser monitoreados.
+3.  **Sincronización Incremental (4-5):** Por cada repositorio, el servicio consulta la tabla `SyncStatus` para obtener la fecha y hora de la última ejecución exitosa. Esta fecha se usará para pedir a GitHub solo los datos nuevos.
+4.  **Recolección de Datos (6-9):** El servicio delega la comunicación a un `Collector`, que a su vez llama a la API de GitHub, pasando el parámetro `since` para una carga eficiente. La API devuelve una lista de DTOs (Data Transfer Objects).
+5.  **Idempotencia (10-11):** Antes de guardar, el servicio consulta su propia base de datos (`DomainRepo`) para ver cuáles de los datos recibidos ya existen.
+6.  **Persistencia (12):** El servicio transforma los DTOs nuevos en entidades de dominio y los guarda en la base de datos.
+7.  **Actualización de Estado (13):** Finalmente, el servicio actualiza la tabla `SyncStatus` con la fecha y hora actuales, marcando el punto de partida para la próxima ejecución.
+
+
+
+
+### HU-11: Procesar Métricas de Velocidad
+### HU-11.1: Frecuencia de Despliegues
+
+*   **Definición:** Mide la frecuencia con la que el software se despliega exitosamente en un entorno específico. Esta es una de las cuatro métricas DORA clave y mide la cadencia de entrega del equipo. A diferencia de la HU-11.2, este cálculo se realiza bajo demanda a través de un servicio y no se persiste en una tabla propia.
+*   **AC 11.1.1:** Dado que existen despliegues en un entorno, cuando el servicio es invocado con un rango de fechas y un período, el sistema debe contar cuántos despliegues ocurrieron en cada sub-período (semanal, mensual, etc.).
+*   **AC 11.1.2:** El resultado del conteo para cada sub-período debe retornarse como una lista de objetos `DeploymentFrequency`.
+
+#### Diagrama de Clases
+
+El siguiente diagrama muestra las clases principales involucradas. `DeploymentFrequencyService` orquesta el cálculo, utilizando `DeploymentRepository` para obtener los datos crudos de los despliegues. `DeploymentFrequency` actúa como un objeto de transferencia de datos (DTO) para devolver los resultados calculados.
+
+```mermaid
+classDiagram
+    direction LR
+
+    class DeploymentFrequencyService {
+        <<Service>>
+        +DeploymentRepository deploymentRepository
+        +calculate(String, LocalDate, LocalDate, PeriodType): List<~DeploymentFrequency~>
+    }
+
+    class DeploymentRepository {
+        <<Repository>>
+        +findByEnvironmentAndCreatedAtBetween(...): List<~Deployment~>
+    }
+
+    class DeploymentFrequency {
+        <<DTO>>
+        -periodStart: LocalDate
+        -periodEnd: LocalDate
+        -count: int
+        +DeploymentFrequency(LocalDate, LocalDate, int)
+    }
+
+    class PeriodType {
+        <<enumeration>>
+        MONTHLY
+        WEEKLY
+        BIWEEKLY
+    }
+
+    class Deployment {
+        <<Entity>>
+        +createdAt: LocalDateTime
+        +environment: String
+    }
+
+    DeploymentFrequencyService --|> DeploymentRepository : uses
+    DeploymentFrequencyService ..> DeploymentFrequency : creates
+    DeploymentFrequencyService ..> PeriodType : uses
+    DeploymentRepository ..> Deployment : returns
+```
+
+#### Diagrama de Entidad-Relación
+
+El análisis del código revela que esta funcionalidad **no introduce una nueva tabla** en la base de datos. El cálculo se realiza en tiempo de ejecución consultando la tabla `DEPLOYMENT` existente. Por lo tanto, el único diagrama relevante es el de la tabla que sirve como fuente de datos.
+
+```mermaid
+erDiagram
+    DEPLOYMENT {
+        bigint id PK
+        varchar sha
+        varchar environment
+        timestamp created_at
+        boolean processed
+    }
+```
+*   **Nota:** El servicio utiliza los campos `environment` y `created_at` para filtrar y contar los despliegues.
+
+#### Diagrama de Secuencia
+
+El diagrama de secuencia ilustra cómo un cliente (por ejemplo, un `Controller` de la API) invoca el servicio para obtener la métrica. El servicio, a su vez, consulta el repositorio de despliegues y procesa los datos para construir la respuesta.
+
+```mermaid
+sequenceDiagram
+    participant Client as "API Client / Controller"
+    participant Service as "DeploymentFrequencyService"
+    participant DepRepo as "DeploymentRepository"
+    participant DB as "Database"
+
+    Client->>+Service: 1. calculate("prod", "2023-01-01", "2023-03-31", "MONTHLY")
+
+    loop para cada período (ej. mensual)
+        Service->>+DepRepo: 2. findByEnvironmentAndCreatedAtBetween("prod", periodStart, periodEnd)
+        DepRepo->>+DB: SELECT * FROM deployment WHERE...
+        DB-->>DepRepo: "Lista de Deployments"
+        DepRepo-->>Service: "List<Deployment>"
+
+        note over Service: Calcula el tamaño de la lista (count)
+
+        Service->>Service: 3. new DeploymentFrequency(periodStart, periodEnd, count)
+    end
+
+    Service-->>-Client: "4. List<DeploymentFrequency>"
+```
+
+#### HU-11.2: Lead Time for Changes (Métrica DORA)
+*   **Definición:** Mide el tiempo desde que se escribe un commit hasta que ese commit es desplegado en producción. Esta es una de las cuatro métricas DORA clave y mide la velocidad de entrega de valor.
+*   **AC 11.2.1:** Dado que existen despliegues a producción no procesados, cuando el job de cálculo se ejecuta, entonces el sistema debe identificar los commits nuevos introducidos en cada despliegue.
+*   **AC 11.2.2:** Para cada commit nuevo, el sistema debe calcular el tiempo transcurrido desde la fecha del commit hasta la fecha del despliegue.
+*   **AC 11.2.3:** El resultado de cada cálculo (Lead Time por commit) debe guardarse en la tabla `CHANGE_LEAD_TIME`.
+*   **AC 11.2.4:** El despliegue procesado debe marcarse como tal (`lead_time_processed = true`) para garantizar la idempotencia.
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+direction LR
+
+namespace Scheduler {
+    class LeadTimeCalculationService {
+        <<Service>>
+        +calculateLeadTime() @Scheduled
+    }
+}
+
+namespace DomainPersistence {
+    class DeploymentRepository {
+        <<Repository>>
+        +findNotProcessedInProduction()
+        +findLastProcessedInProduction()
+    }
+    class CommitRepository {
+        <<Repository>>
+        +findCommitsInBranch()
+    }
+    class ChangeLeadTimeRepository {
+        <<Repository>>
+        +saveAll(entities)
+    }
+}
+
+namespace DomainModel {
+    class Deployment {
+        +sha: String
+        +environment: String
+        +createdAt: LocalDateTime
+        +leadTimeProcessed: boolean
+    }
+    class Commit {
+        +sha: String
+        +date: LocalDateTime
+    }
+    class ChangeLeadTime {
+        +leadTimeInSeconds: long
+    }
+}
+
+%% --- Relaciones ---
+LeadTimeCalculationService --|> DeploymentRepository : uses
+LeadTimeCalculationService --|> CommitRepository : uses
+LeadTimeCalculationService --|> ChangeLeadTimeRepository : uses
+
+ChangeLeadTime --o Deployment : calculated_for
+ChangeLeadTime --o Commit : measures
+```
+
+**Explicación del Diagrama:**
+
+*   **Scheduler:** El `LeadTimeCalculationService` contiene un método programado (`@Scheduled`) que inicia el proceso de cálculo periódicamente.
+*   **DomainPersistence (Repositorios):** El servicio depende de varios repositorios para interactuar con la base de datos:
+*   `DeploymentRepository` para encontrar los despliegues en producción que necesitan ser procesados.
+*   `CommitRepository` para navegar el grafo de commits.
+*   `ChangeLeadTimeRepository` para guardar los resultados del cálculo.
+*   **DomainModel (Entidades):** Muestra las entidades clave involucradas: `Deployment` (el disparador), `Commit` (lo que se mide) y `ChangeLeadTime` (el resultado).
+*   **Relaciones:** Las flechas indican las dependencias y el flujo de control, desde el servicio hacia los repositorios y las entidades que manipula.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+DEPLOYMENT {
+    bigint id PK
+    varchar sha FK "Ref al commit desplegado"
+    varchar environment "Ej: production"
+    datetime created_at "Timestamp del despliegue"
+    boolean lead_time_processed "Flag de idempotencia"
+}
+
+COMMIT {
+    varchar sha PK
+    datetime author_date
+    varchar message
+}
+
+CHANGE_LEAD_TIME {
+    bigint id PK
+    varchar commit_sha FK "Ref al commit medido"
+    bigint deployment_id FK "Ref al despliegue que lo incluyó"
+    bigint lead_time_in_seconds "Métrica calculada"
+}
+
+DEPLOYMENT ||--|{ COMMIT : "despliega"
+CHANGE_LEAD_TIME }o--|| COMMIT : "mide"
+CHANGE_LEAD_TIME }o--|| DEPLOYMENT : "es calculado para"
+```
+
+**Explicación del Diagrama:**
+
+*   **`DEPLOYMENT`**: Almacena los registros de cada despliegue. El campo `sha` lo vincula al commit exacto que se desplegó. El flag `lead_time_processed` es crucial para que el job de cálculo no procese el mismo despliegue más de una vez.
+*   **`COMMIT`**: La tabla de commits que ya recolectamos con la HU-10.
+*   **`CHANGE_LEAD_TIME`**: Esta es la tabla de resultados. Cada fila es un hecho que dice: "El commit *X* tuvo un Lead Time de *Y* segundos, medido en el momento del despliegue *Z*".
+*   **Relaciones:**
+*   Un `COMMIT` puede estar en muchos `DEPLOYMENT`s (si se despliega varias veces).
+*   Un `COMMIT` puede tener un registro de `CHANGE_LEAD_TIME`.
+*   Un `DEPLOYMENT` puede resultar en el cálculo de muchos `CHANGE_LEAD_TIME`s (uno por cada nuevo commit en ese despliegue).
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    participant Scheduler as "Spring Scheduler"
+    participant Service as "LeadTimeCalculationService"
+    participant DepRepo as "DeploymentRepository"
+    participant CommitRepo as "CommitRepository"
+    participant CLTRepo as "ChangeLeadTimeRepository"
+    participant DB as "Database"
+
+    Scheduler->>+Service: 1. calculateLeadTime() @Scheduled
+
+    Service->>+DepRepo: 2. findNotProcessedInProduction()
+    DepRepo-->>Service: "3. List<Deployment> (deployments_a_procesar)"
+
+    loop para cada Deployment actual
+        Service->>+DepRepo: 4. findLastProcessedInProduction(actual.createdAt)
+        DepRepo-->>Service: "5. Optional<Deployment> (deploy_anterior)"
+
+        note over Service: El SHA del deploy_anterior es el límite para el grafo.
+
+        Service->>+CommitRepo: 6. findCommitsBetween(actual.sha, anterior.sha)
+        CommitRepo-->>Service: "7. List<Commit> (nuevos_commits)"
+
+        note over Service: Calcula el Lead Time para cada nuevo_commit.
+        Service->>Service: 8. (actual.createdAt - commit.date)
+
+        Service->>+CLTRepo: 9. saveAll(lista_de_ChangeLeadTime)
+        CLTRepo->>+DB: INSERT INTO change_lead_time...
+        DB-->>CLTRepo: "ok"
+
+        CLTRepo-->>Service: "ok"
+
+        note over Service: Marca el deployment actual como procesado.
+
+        Service->>+DepRepo: 10. save(actual_deployment.setProcessed(true))
+        DepRepo->>+DB: UPDATE deployment SET...
+        DB-->>DepRepo: "ok"
+        DepRepo-->>Service: "ok"
+
+    end
+
+    deactivate Service
+```
+
+**Explicación del Diagrama:**
+
+1.  **Disparo Programado (1):** El `Scheduler` de Spring invoca el método de cálculo en el `LeadTimeCalculationService`.
+2.  **Buscar Trabajo (2-3):** El servicio consulta al `DeploymentRepository` por despliegues en producción que aún no han sido procesados (el flag `lead_time_processed` está en `false`).
+3.  **Establecer Límite (4-5):** Por cada despliegue a procesar, el servicio busca el despliegue anterior en producción. El commit de este despliegue anterior servirá como el punto de parada (límite) en el recorrido del historial.
+4.  **Identificar Commits Nuevos (6-7):** El servicio pide al `CommitRepository` que le entregue todos los commits que ocurrieron entre el commit del despliegue actual y el commit del despliegue anterior. Esto aísla efectivamente los cambios nuevos.
+5.  **Calcular Métrica (8):** El servicio itera sobre la lista de commits nuevos y, para cada uno, calcula la diferencia entre la fecha de despliegue y la fecha del commit.
+6.  **Guardar Resultados (9):** El servicio crea una lista de entidades `ChangeLeadTime` y las persiste en la base de datos a través de su repositorio.
+7.  **Marcar como Procesado (10):** Finalmente, el servicio actualiza el flag `lead_time_processed` en la entidad `Deployment` y la guarda. Este paso es crucial para garantizar la idempotencia y evitar que el trabajo se repita en la siguiente ejecución.
+
+#### HU-17: Implementar un Modelo de Acceso "Cerrado por Defecto" en el Arranque
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    class SecurityConfig {
+        -authenticationService: AuthenticationService
+        +securityFilterChain(http: HttpSecurity): SecurityFilterChain
+    }
+    class AuthenticationService {
+        +isInitialBootstrap(): boolean
+    }
+    class HttpSecurity {
+        +authorizeHttpRequests(customizer): HttpSecurity
+    }
+
+    SecurityConfig --|> AuthenticationService : uses
+    SecurityConfig --|> HttpSecurity : configures
+```
+
+**Explicación del Diagrama:**
+
+*   **`SecurityConfig`**: La clase de configuración de seguridad ahora tiene una dependencia (`uses`) de `AuthenticationService`.
+*   **`AuthenticationService`**: Expone un método público `isInitialBootstrap()` que `SecurityConfig` puede invocar.
+*   **`HttpSecurity`**: El objeto constructor que `SecurityConfig` utiliza para aplicar las reglas de autorización que se deciden dinámicamente.
+
+##### Diagrama de Base de Datos (ERD)
+
+No aplica. Esta funcionalidad es una lógica de configuración de seguridad que se aplica en tiempo de ejecución. No interactúa directamente con la base de datos ni modifica su esquema. Las decisiones de autorización se basan en el estado del sistema (si existe un administrador o no), pero la lógica en sí misma no realiza operaciones CRUD sobre las tablas.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant SpringSecurity as "Spring Security Filter Chain"
+    participant SecurityConfig as "SecurityConfig Bean"
+    participant AuthenticationService as "AuthenticationService"
+    participant UserRepository as "UserRepository"
+
+    User->>+Browser: 1. Accede a /api/protected-endpoint
+    Browser->>+SpringSecurity: 2. GET /api/protected-endpoint
+
+    Note over SpringSecurity: La petición es interceptada por la cadena de filtros.
+
+    SpringSecurity->>+SecurityConfig: 3. Aplica reglas de `securityFilterChain`
+
+    SecurityConfig->>+AuthenticationService: 4. Llama a `isInitialBootstrap()`
+    
+    AuthenticationService->>+UserRepository: 5. Llama a `existsByRoles_Name("ADMIN")`
+    UserRepository-->>-AuthenticationService: 6. Retorna `false`
+    
+    AuthenticationService-->>-SecurityConfig: 7. Retorna `true`
+
+    Note over SecurityConfig: `isInitialBootstrap()` es verdadero. Se aplican las reglas de "cerrado por defecto".
+
+    SecurityConfig-->>-SpringSecurity: 8. Configura `denyAll()` para la petición
+
+    SpringSecurity-->>-Browser: 9. HTTP 403 Forbidden
+    Browser-->>-User: 10. Muestra página de Acceso Denegado
+```
+
+**Explicación del Diagrama:**
+
+1.  **Petición (1-2):** Un usuario (que podría estar o no autenticado) intenta acceder a un endpoint protegido de la API.
+2.  **Intercepción (3):** La cadena de filtros de Spring Security intercepta la petición antes de que llegue al controlador.
+3.  **Decisión Dinámica (4-7):** La configuración de seguridad (`SecurityConfig`) no aplica una regla estática. En su lugar, invoca al `AuthenticationService` para consultar el estado del sistema. El `AuthenticationService` a su vez consulta la base de datos a través del `UserRepository` para verificar si existe algún administrador. Como no existe, `isInitialBootstrap()` devuelve `true`.
+4.  **Aplicación de la Regla (8):** Al recibir `true`, `SecurityConfig` aplica la regla más estricta posible para la petición entrante: `denyAll()`. Esta regla bloquea el acceso incondicionalmente.
+5.  **Respuesta de Acceso Denegado (9-10):** Spring Security, siguiendo la regla `denyAll()`, detiene el procesamiento de la petición y devuelve inmediatamente una respuesta `HTTP 403 Forbidden` al navegador, impidiendo cualquier acceso a la lógica de negocio del endpoint.
 
 #### Diagrama de Secuencia: `module-collector` (GitHub)
 ```mermaid
@@ -858,3 +2431,64 @@ graph TD
     *   **`App SG`:** Actúa como el firewall para las instancias de Elastic Beanstalk. Permite el tráfico entrante en el puerto 80 (HTTP) desde cualquier lugar de internet, para que los usuarios puedan acceder a la aplicación a través del Load Balancer.
     *   **`DB SG`:** Es el firewall de la base de datos. Es altamente restrictivo y bloquea todo el tráfico entrante por defecto.
     *   **Regla de Conexión:** Se crea una regla de `ingress` (entrada) en el `DB SG` que permite el tráfico en el puerto 3306 (MySQL) **únicamente** si su origen es un recurso que pertenece al `App SG`. Este es el enlace de seguridad crucial que permite a la aplicación comunicarse con la base de datos, mientras se bloquea cualquier otro intento de conexión.
+
+---
+
+## 14. Infraestructura y Operaciones
+
+Esta sección documenta los principios y procedimientos para la gestión de la infraestructura del sistema, capitalizando las lecciones aprendidas durante la resolución de incidentes.
+
+### 14.1. Gestión de Infraestructura con Terraform
+
+*   **Principio Clave:** Toda la infraestructura de AWS (VPC, RDS, Elastic Beanstalk, etc.) es gestionada **exclusivamente** a través de Terraform. El código en el directorio `/terraform` es la única fuente de verdad del estado de la infraestructura.
+
+*   **Prohibición Explícita:** Se prohíbe realizar cambios destructivos o de configuración mayor (ej. terminar entornos, reconstruir, modificar Security Groups) directamente desde la consola de AWS. Estas acciones manuales introducen una "deriva" (`drift`) entre el estado real y el estado definido en el código, lo que conduce a errores de planificación y conflictos en futuros despliegues de Terraform.
+
+*   **Flujo de Trabajo Estándar:** Cualquier cambio en la infraestructura debe seguir el siguiente flujo de trabajo:
+    1.  Modificar el código `.tf` correspondiente.
+    2.  Ejecutar `terraform plan` para previsualizar los cambios.
+    3.  Ejecutar `terraform apply` para aplicar los cambios de forma controlada.
+
+### 14.2. Procedimiento de Recuperación de Entornos Elastic Beanstalk (Runbook)
+
+Este runbook detalla el procedimiento para recuperar un entorno de Elastic Beanstalk que ha quedado bloqueado.
+
+*   **Síntoma:** El entorno se muestra en la consola de AWS con un estado de `Updating` o `Severe` durante un tiempo prolongado. Las acciones de la consola como "Abort current operation" o "Rebuild environment" están deshabilitadas o no tienen efecto.
+
+*   **Diagnóstico:** La causa más probable es una o más instancias EC2 subyacentes que han entrado en un estado irrecuperable ("zombie"). No responden a los comandos del plano de control de Elastic Beanstalk, lo que provoca que el entorno se bloquee en espera de una respuesta que nunca llegará.
+
+*   **Solución (Método de Recreación Forzada con Terraform):** El único método aprobado para resolver este bloqueo es forzar la destrucción y recreación del recurso a través de Terraform.
+
+    1.  **Navegar al Directorio de Terraform:**
+        ```sh
+        cd /ruta/al/proyecto/terraform
+        ```
+
+    2.  **Inicializar Terraform:** Asegurarse de que los plugins de los proveedores están instalados.
+        ```sh
+        terraform init
+        ```
+
+    3.  **Marcar el Recurso como Corrupto (`taint`):** Este comando le dice a Terraform que ignore el estado actual del recurso y lo reemplace en el próximo `apply`. Reemplazar `tesis_env` si el nombre lógico del recurso es diferente.
+        ```sh
+        terraform taint aws_elastic_beanstalk_environment.tesis_env
+        ```
+
+    4.  **Verificar el Plan de Reemplazo:** Simular los cambios para confirmar que Terraform planea reemplazar el entorno.
+        ```sh
+        terraform plan
+        ```
+        *Se debe observar una línea similar a: `-/+ resource "aws_elastic_beanstalk_environment" "tesis_env" will be replaced`.*
+
+    5.  **Aplicar la Recreación:** Ejecutar el plan para destruir el entorno bloqueado y crear uno nuevo y saludable.
+        ```sh
+        terraform apply
+        ```
+
+### 14.3. Diseño del Pipeline de Despliegue Idempotente
+
+*   **Principio:** El pipeline de despliegue manual (`manual-deploy.yml`) está diseñado para ser **idempotente**, lo que significa que puede ser ejecutado múltiples veces con el mismo resultado sin causar efectos secundarios no deseados.
+
+*   **Implementación Clave:** La idempotencia se logra principalmente a través del parámetro `use_existing_version_if_available: true` en la acción `einaregilsson/beanstalk-deploy`.
+    *   **Problema Evitado:** Sin este parámetro, si un despliegue falla después de que la nueva versión de la aplicación ya ha sido creada en Elastic Beanstalk, un reintento del pipeline fallaría inmediatamente con un error de "Application Version already exists".
+    *   **Solución:** Al establecer este parámetro en `true`, si la acción de despliegue detecta que la `version_label` que intenta crear ya existe, en lugar de fallar, la reutiliza y procede directamente al paso de despliegue. Esto permite que los reintentos del pipeline sean seguros y efectivos.
