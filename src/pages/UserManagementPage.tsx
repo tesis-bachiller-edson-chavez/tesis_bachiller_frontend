@@ -7,6 +7,7 @@ interface User {
   githubUsername: string;
   name: string;
   avatarUrl: string;
+  roles: string[]; // Roles asignados al usuario
 }
 
 export const UserManagementPage = () => {
