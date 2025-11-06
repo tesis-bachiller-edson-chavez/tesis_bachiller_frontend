@@ -17,6 +17,21 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   comment             = "CDN for DORA Platform Frontend"
   default_root_object = "index.html"
 
+  # --- INICIO DE LA MODIFICACIÓN ---
+  # Redirige los errores 404 y 403 a index.html para que la SPA maneje el enrutamiento.
+  custom_error_response {
+    error_code         = 404
+    response_page_path = "/index.html"
+    response_code      = 200
+  }
+
+  custom_error_response {
+    error_code         = 403
+    response_page_path = "/index.html"
+    response_code      = 200
+  }
+  # --- FIN DE LA MODIFICACIÓN ---
+
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
