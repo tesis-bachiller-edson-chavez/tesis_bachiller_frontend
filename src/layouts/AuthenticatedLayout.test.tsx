@@ -34,25 +34,61 @@ describe('AuthenticatedLayout', () => {
   };
 
   test('debe renderizar un botón de logout y redirigir al hacer clic con una respuesta exitosa', async () => {
-    window.fetch = vi.fn(() => Promise.resolve(new Response(null, { status: 200 }))) as any;
+    // Mock para responder tanto a /api/v1/users/me como a /logout
+    window.fetch = vi.fn((url) => {
+      if (url.includes('/api/v1/users/me')) {
+        // Respuesta exitosa del usuario autenticado
+        return Promise.resolve(
+          new Response(JSON.stringify({ id: 1, githubUsername: 'test', email: 'test@test.com', roles: ['DEVELOPER'] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }
+      // Respuesta exitosa del logout
+      return Promise.resolve(new Response(null, { status: 200 }));
+    }) as any;
 
     renderLayoutWithTestRoute();
+
+    // Esperar a que cargue el usuario
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando.../i)).not.toBeInTheDocument();
+    });
 
     const logoutButton = screen.getByRole('button', { name: /Cerrar Sesión/i });
     fireEvent.click(logoutButton);
 
-    expect(window.fetch).toHaveBeenCalledWith('/logout', { method: 'POST' });
+    // Verificar que se llamó al logout con credentials
+    expect(window.fetch).toHaveBeenCalledWith('/logout', { method: 'POST', credentials: 'include' });
 
     await waitFor(() => {
-      // Verificamos directamente el mock, sin necesidad de un espía adicional
       expect(window.location.assign).toHaveBeenCalledWith('/');
     });
   });
 
   test('debe mostrar un error en la consola si la respuesta de logout no es ok', async () => {
-    window.fetch = vi.fn(() => Promise.resolve(new Response(null, { status: 500 }))) as any;
+    // Mock para responder tanto a /api/v1/users/me como a /logout
+    window.fetch = vi.fn((url) => {
+      if (url.includes('/api/v1/users/me')) {
+        // Respuesta exitosa del usuario autenticado
+        return Promise.resolve(
+          new Response(JSON.stringify({ id: 1, githubUsername: 'test', email: 'test@test.com', roles: ['DEVELOPER'] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }
+      // Respuesta de error del logout
+      return Promise.resolve(new Response(null, { status: 500 }));
+    }) as any;
 
     renderLayoutWithTestRoute();
+
+    // Esperar a que cargue el usuario
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando.../i)).not.toBeInTheDocument();
+    });
 
     const logoutButton = screen.getByRole('button', { name: /Cerrar Sesión/i });
     fireEvent.click(logoutButton);
@@ -65,9 +101,30 @@ describe('AuthenticatedLayout', () => {
 
   test('debe mostrar un error en la consola si fetch lanza una excepción', async () => {
     const mockError = new Error('Network Error');
-    window.fetch = vi.fn(() => Promise.reject(mockError)) as any;
+    let callCount = 0;
+
+    // Mock para que la primera llamada tenga éxito y la segunda falle
+    window.fetch = vi.fn(() => {
+      callCount++;
+      if (callCount === 1) {
+        // Primera llamada a /api/v1/users/me exitosa
+        return Promise.resolve(
+          new Response(JSON.stringify({ id: 1, githubUsername: 'test', email: 'test@test.com', roles: ['DEVELOPER'] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }
+      // Segunda llamada (logout) lanza error
+      return Promise.reject(mockError);
+    }) as any;
 
     renderLayoutWithTestRoute();
+
+    // Esperar a que cargue el usuario
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando.../i)).not.toBeInTheDocument();
+    });
 
     const logoutButton = screen.getByRole('button', { name: /Cerrar Sesión/i });
     fireEvent.click(logoutButton);
