@@ -20,7 +20,7 @@ export const UserManagementPage = () => {
       try {
         // En desarrollo, apiUrl es '' para usar el proxy. En producción, usa la variable de entorno.
         const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${apiUrl}/api/v1/users`);
+        const response = await fetch(`${apiUrl}/api/v1/users`, { credentials: 'include' });
         if (!response.ok) {
           throw new Error("Error al obtener los usuarios");
         }

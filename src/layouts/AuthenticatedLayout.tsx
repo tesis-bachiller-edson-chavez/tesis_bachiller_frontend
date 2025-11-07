@@ -42,7 +42,7 @@ export const AuthenticatedLayout = () => {
   const handleLogout = async () => {
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(`${apiUrl}/logout`, { method: 'POST' });
+      const response = await fetch(`${apiUrl}/logout`, { method: 'POST', credentials: 'include' });
       if (response.ok) {
         window.location.assign('/');
       } else {
