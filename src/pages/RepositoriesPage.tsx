@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { RepositoriesTable } from '@/components/RepositoriesTable';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/layouts/AuthenticatedLayout';
+import { DebugAuthInfo } from '@/components/DebugAuthInfo';
 import type {
   RepositoryDto,
   RepositorySyncResultDto,
@@ -191,32 +192,36 @@ export const RepositoriesPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Gestión de Repositorios</h1>
-        {isAdmin && (
-          <Button onClick={handleSync} disabled={syncing}>
-            {syncing ? 'Sincronizando...' : 'Sincronizar desde GitHub'}
-          </Button>
+    <>
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Gestión de Repositorios</h1>
+          {isAdmin && (
+            <Button onClick={handleSync} disabled={syncing}>
+              {syncing ? 'Sincronizando...' : 'Sincronizar desde GitHub'}
+            </Button>
+          )}
+        </div>
+
+        {loading && <p>Cargando repositorios...</p>}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {!loading && !error && repositories.length === 0 && (
+          <p className="text-gray-500">
+            No hay repositorios configurados.
+            {isAdmin && ' Sincroniza desde GitHub para comenzar.'}
+          </p>
+        )}
+        {!loading && !error && repositories.length > 0 && (
+          <RepositoriesTable
+            repositories={repositories}
+            services={services}
+            onUpdate={handleUpdate}
+            isAdmin={isAdmin}
+          />
         )}
       </div>
-
-      {loading && <p>Cargando repositorios...</p>}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {!loading && !error && repositories.length === 0 && (
-        <p className="text-gray-500">
-          No hay repositorios configurados.
-          {isAdmin && ' Sincroniza desde GitHub para comenzar.'}
-        </p>
-      )}
-      {!loading && !error && repositories.length > 0 && (
-        <RepositoriesTable
-          repositories={repositories}
-          services={services}
-          onUpdate={handleUpdate}
-          isAdmin={isAdmin}
-        />
-      )}
-    </div>
+      {/* Componente de debug temporal */}
+      <DebugAuthInfo />
+    </>
   );
 };
