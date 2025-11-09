@@ -470,35 +470,35 @@ graph
 
 * **HU-15: Estructura Base del Frontend**
     * **Como** desarrollador, **quiero** una estructura de proyecto React con ruteo y layouts, **para** tener una base sólida sobre la cual construir la UI.
-    * **AC 15.1:** Dado que la aplicación carga, cuando un usuario no está autenticado, entonces se le muestra la `LoginPage`.
-    * **AC 15.2:** Dado que un usuario está autenticado, cuando navega por la aplicación, entonces ve el `AuthenticatedLayout` (header y sidebar) de forma persistente.
+    - **AC 15.1:** Dado que la aplicación carga, cuando un usuario no está autenticado, entonces se le muestra la `LoginPage`.
+    - **AC 15.2:** Dado que un usuario está autenticado, cuando navega por la aplicación, entonces ve el `AuthenticatedLayout` (header y sidebar) de forma persistente.
 
 * **HU-16: Página de Administración de Roles**
-    * **Como** Administrador, **quiero** una interfaz para gestionar los roles de los usuarios, **para** controlar los permisos de la aplicación.
-    * **AC 16.1:** Dado que he iniciado sesión como Administrador, cuando navego a la página de administración, entonces veo una tabla con los usuarios de la organización.
+    - **Como** Administrador, **quiero** una interfaz para gestionar los roles de los usuarios, **para** controlar los permisos de la aplicación.
+    - **AC 16.1:** Dado que he iniciado sesión como Administrador, cuando navego a la página de administración, entonces veo una tabla con los usuarios de la organización.
     - **AC 16.2:** Dado que estoy viendo la tabla de usuarios, cuando cambio el rol de un usuario, entonces se realiza una llamada a la API y la UI se actualiza con el nuevo rol.
 
 * **HU-17: Implementar un Modelo de Acceso "Cerrado por Defecto" en el Arranque**
-    * **Como** administrador del sistema, **necesito** que la aplicación bloquee por defecto todos los inicios de sesión, excepto el del administrador inicial designado, cuando aún no he configurado una organización de GitHub, **para** garantizar la máxima seguridad desde el primer despliegue y prevenir cualquier registro de usuario no autorizado antes de que el sistema esté completamente configurado.
-    * **AC 17.1:** Dado que el sistema está en su estado de arranque inicial, cuando un usuario que no es el administrador inicial intenta iniciar sesión, entonces el acceso debe ser denegado.
-    * **AC 17.2:** Dado que el sistema está en su estado de arranque inicial, cuando el usuario que es el administrador inicial intenta iniciar sesión, entonces debe ser creado exitosamente con el rol de ADMIN.
-    * **AC 17.3:** Dado que un ADMIN ya existe en el sistema y la organización aún no está configurada, cuando un nuevo usuario intenta iniciar sesión, entonces su acceso debe ser denegado.
+    - **Como** administrador del sistema, **necesito** que la aplicación bloquee por defecto todos los inicios de sesión, excepto el del administrador inicial designado, cuando aún no he configurado una organización de GitHub, **para** garantizar la máxima seguridad desde el primer despliegue y prevenir cualquier registro de usuario no autorizado antes de que el sistema esté completamente configurado.
+    - **AC 17.1:** Dado que el sistema está en su estado de arranque inicial, cuando un usuario que no es el administrador inicial intenta iniciar sesión, entonces el acceso debe ser denegado.
+    - **AC 17.2:** Dado que el sistema está en su estado de arranque inicial, cuando el usuario que es el administrador inicial intenta iniciar sesión, entonces debe ser creado exitosamente con el rol de ADMIN.
+    - **AC 17.3:** Dado que un ADMIN ya existe en el sistema y la organización aún no está configurada, cuando un nuevo usuario intenta iniciar sesión, entonces su acceso debe ser denegado.
 
 * **HU-18: Interfaz de Usuario para Cerrar Sesión**
-    * **Como** usuario autenticado, **quiero** poder cerrar mi sesión de forma segura, **para** proteger mi cuenta de accesos no autorizados.
-    * **AC 18.1:** Dado que he iniciado sesión, cuando navego por la aplicación, entonces veo un elemento claramente identificable para "Cerrar Sesión".
-    * **AC 18.2:** Dado que estoy viendo el botón "Cerrar Sesión", cuando hago clic en él, entonces soy redirigido inmediatamente a la página de inicio (`/`).
-    * **AC 18.3:** Dado que he cerrado sesión, cuando intento acceder a una ruta protegida, entonces se me deniega el acceso y soy redirigido a la página de inicio de sesión.
+    - **Como** usuario autenticado, **quiero** poder cerrar mi sesión de forma segura, **para** proteger mi cuenta de accesos no autorizados.
+    - **AC 18.1:** Dado que he iniciado sesión, cuando navego por la aplicación, entonces veo un elemento claramente identificable para "Cerrar Sesión".
+    - **AC 18.2:** Dado que estoy viendo el botón "Cerrar Sesión", cuando hago clic en él, entonces soy redirigido inmediatamente a la página de inicio (`/`).
+    - **AC 18.3:** Dado que he cerrado sesión, cuando intento acceder a una ruta protegida, entonces se me deniega el acceso y soy redirigido a la página de inicio de sesión.
 
 * **HU-19: Crear Página de Inicio de Sesión**
-    * **Como** usuario no autenticado, **quiero** ver una página de bienvenida simple que me invite a iniciar sesión con mi cuenta de GitHub para poder acceder a la aplicación.
-    * **AC 19.1:** Dado que no he iniciado sesión, cuando visito la raíz de la aplicación (`/`), entonces se me presenta una página de bienvenida.
-    * **AC 19.2:** Dado que estoy en la página de bienvenida, cuando hago clic en el botón "Iniciar Sesión con GitHub", entonces soy redirigido al flujo de autorización de GitHub.
+    - **Como** usuario no autenticado, **quiero** ver una página de bienvenida simple que me invite a iniciar sesión con mi cuenta de GitHub para poder acceder a la aplicación.
+    - **AC 19.1:** Dado que no he iniciado sesión, cuando visito la raíz de la aplicación (`/`), entonces se me presenta una página de bienvenida.
+    - **AC 19.2:** Dado que estoy en la página de bienvenida, cuando hago clic en el botón "Iniciar Sesión con GitHub", entonces soy redirigido al flujo de autorización de GitHub.
 
 * **HU-20: Crear Página Principal (Home) para Usuarios Autenticados**
-    * **Como** usuario que ha iniciado sesión, **quiero** ser dirigido a una página principal o "Home" donde pueda ver contenido exclusivo y acceder a acciones como "Cerrar Sesión".
-    * **AC 20.1:** Dado que he completado el inicio de sesión con éxito, cuando soy redirigido por el sistema, entonces aterrizo en una URL protegida (ej. `/home` o `/dashboard`).
-    * **AC 20.2:** Dado que estoy en la página principal, cuando observo el contenido, entonces veo un mensaje de bienvenida simple y el botón "Cerrar Sesión".
+    - **Como** usuario que ha iniciado sesión, **quiero** ser dirigido a una página principal o "Home" donde pueda ver contenido exclusivo y acceder a acciones como "Cerrar Sesión".
+    - **AC 20.1:** Dado que he completado el inicio de sesión con éxito, cuando soy redirigido por el sistema, entonces aterrizo en una URL protegida (ej. `/home` o `/dashboard`).
+    - **AC 20.2:** Dado que estoy en la página principal, cuando observo el contenido, entonces veo un mensaje de bienvenida simple y el botón "Cerrar Sesión".
 
 ---
 
@@ -2191,6 +2191,191 @@ sequenceDiagram
 6.  **Guardar Resultados (9):** El servicio crea una lista de entidades `ChangeLeadTime` y las persiste en la base de datos a través de su repositorio.
 7.  **Marcar como Procesado (10):** Finalmente, el servicio actualiza el flag `lead_time_processed` en la entidad `Deployment` y la guarda. Este paso es crucial para garantizar la idempotencia y evitar que el trabajo se repita en la siguiente ejecución.
 
+#### HU-13: Recolectar Datos de DataDog
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    direction LR
+
+    subgraph module_collector
+        class IncidentSyncService {
+            <<Service>>
+            +syncIncidents() @Scheduled
+            -mapToIncident(DatadogIncidentData, String): Incident
+            -updateIncident(Incident, Incident): void
+        }
+        class DatadogIncidentClient {
+            <<Component>>
+            -webClient: WebClient
+            +getIncidents(Instant, String): DatadogIncidentResponse
+        }
+        class DatadogIncidentResponse { <<DTO>> }
+        class DatadogIncidentData { <<DTO>> }
+    end
+
+    subgraph module_domain
+        class Incident {
+            <<Entity>>
+            -datadogIncidentId: String
+            -state: IncidentState
+            -severity: IncidentSeverity
+            -startTime: LocalDateTime
+            -resolvedTime: LocalDateTime
+        }
+        class IncidentRepository {
+            <<Repository>>
+            +findByDatadogIncidentId(String): Optional<Incident>
+            +save(Incident): Incident
+        }
+        class SyncStatus {
+            <<Entity>>
+            -jobName: String
+            -lastSuccessfulRun: LocalDateTime
+        }
+        class SyncStatusRepository {
+            <<Repository>>
+            +findById(String): Optional<SyncStatus>
+            +save(SyncStatus): SyncStatus
+        }
+        class RepositoryConfig {
+            <<Entity>>
+            -datadogServiceName: String
+        }
+        class RepositoryConfigRepository {
+            <<Repository>>
+            +findAll(): List<RepositoryConfig>
+        }
+    end
+
+    %% --- Relaciones ---
+    IncidentSyncService --> DatadogIncidentClient : uses
+    IncidentSyncService --> IncidentRepository : uses
+    IncidentSyncService --> SyncStatusRepository : uses
+    IncidentSyncService --> RepositoryConfigRepository : uses
+    
+    DatadogIncidentClient ..> DatadogIncidentResponse : returns
+    DatadogIncidentClient ..> DatadogIncidentData : uses
+    
+    IncidentRepository ..> Incident : manages
+    SyncStatusRepository ..> SyncStatus : manages
+    RepositoryConfigRepository ..> RepositoryConfig : manages
+```
+
+**Explicación del Diagrama:**
+
+1.  **Punto de Entrada (`IncidentSyncService`):** La lógica se inicia en el método `syncIncidents`, anotado con `@Scheduled` para su ejecución periódica. Este servicio actúa como el orquestador central.
+2.  **Configuración (`RepositoryConfigRepository`):** El servicio primero consulta todos los `RepositoryConfig` para saber qué servicios de Datadog debe monitorear.
+3.  **Sincronización Incremental (`SyncStatusRepository`):** Antes de llamar a la API, consulta el `SyncStatusRepository` para obtener la fecha de la última sincronización exitosa, asegurando que solo se pidan datos nuevos.
+4.  **Cliente HTTP (`DatadogIncidentClient`):** El servicio delega la comunicación con la API de Datadog al `DatadogIncidentClient`. Este cliente es responsable de construir la URL, añadir las cabeceras de autenticación y realizar la petición web.
+5.  **Mapeo de Datos (DTOs y `mapToIncident`):** El cliente recibe la respuesta en forma de DTOs (`DatadogIncidentResponse`). Luego, el `IncidentSyncService` utiliza su método `mapToIncident` para convertir estos DTOs en entidades de dominio (`Incident`).
+6.  **Persistencia Idempotente (`IncidentRepository`):** Para cada incidente mapeado, el servicio utiliza el `IncidentRepository` para buscar si ya existe un incidente con el mismo `datadogIncidentId`.
+    *   Si existe, lo actualiza (`updateIncident`).
+    *   Si no existe, lo guarda como una nueva entidad.
+7.  **Actualización de Estado (`SyncStatusRepository`):** Al finalizar el proceso, el servicio guarda la nueva fecha y hora de sincronización en el `SyncStatusRepository`.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    INCIDENTS {
+        bigint id PK
+        varchar datadog_incident_id UK "ID único de Datadog"
+        varchar title
+        varchar state "ACTIVE, STABLE, RESOLVED"
+        varchar severity "SEV1, SEV2, etc."
+        datetime start_time
+        datetime resolved_time
+        bigint duration_seconds
+        varchar service_name
+        datetime created_at
+        datetime updated_at
+    }
+
+    SYNC_STATUS {
+        varchar job_name PK "Ej: DATADOG_INCIDENT_SYNC"
+        datetime last_successful_run
+    }
+
+    REPOSITORY_CONFIG {
+        bigint id PK
+        varchar repository_url
+        varchar datadog_service_name "Nombre del servicio en Datadog"
+    }
+
+    INCIDENTS }o--|| REPOSITORY_CONFIG : "pertenece a"
+```
+
+**Explicación del Diagrama:**
+
+*   **`INCIDENTS`**: Es la tabla principal donde se almacenan los datos de los incidentes recolectados. El campo `datadog_incident_id` tiene una restricción `UNIQUE` para garantizar la idempotencia a nivel de base de datos. Los campos `state` y `severity` almacenan los valores del `enum` como cadenas de texto.
+*   **`SYNC_STATUS`**: Tabla de metadatos crucial para la sincronización incremental. El `job_name` para este proceso es `DATADOG_INCIDENT_SYNC`.
+*   **`REPOSITORY_CONFIG`**: Esta tabla, que ya existe en el sistema, se utiliza para obtener el `datadog_service_name` que se debe usar al filtrar los incidentes en la API de Datadog. La relación lógica es que un `INCIDENT` pertenece a un `REPOSITORY_CONFIG` a través del `service_name`.
+
+##### Diagrama de Secuencia
+```mermaid
+sequenceDiagram
+    participant Scheduler
+    participant Service as "IncidentSyncService"
+    participant RepoConfigRepo as "RepositoryConfigRepository"
+    participant SyncStatusRepo as "SyncStatusRepository"
+    participant Client as "DatadogIncidentClient"
+    participant DatadogAPI as "Datadog API"
+    participant IncidentRepo as "IncidentRepository"
+    participant DB as "Database"
+
+    Scheduler->>+Service: 1. syncIncidents() @Scheduled
+    
+    Service->>+RepoConfigRepo: 2. findAll()
+    RepoConfigRepo-->>-Service: 3. List<RepositoryConfig>
+
+    loop para cada RepositoryConfig
+        Service->>+SyncStatusRepo: 4. findById("DATADOG_INCIDENT_SYNC")
+        SyncStatusRepo-->>-Service: 5. Optional<SyncStatus> (con last_successful_run)
+
+        Service->>+Client: 6. getIncidents(since, serviceName)
+        Client->>+DatadogAPI: 7. GET /api/v2/incidents?filter[since]=...&filter[query]=service:...
+        DatadogAPI-->>-Client: 8. Lista de DTOs de Incidentes
+        Client-->>-Service: 9. DatadogIncidentResponse
+
+        loop para cada Incidente en la respuesta
+            Service->>+IncidentRepo: 10. findByDatadogIncidentId(id)
+            IncidentRepo-->>-Service: 11. Optional<Incident>
+
+            alt Incidente ya existe
+                Service->>Service: 12a. updateIncident(existing, mapped)
+                Service->>+IncidentRepo: 13a. save(existing)
+                IncidentRepo->>+DB: UPDATE incidents SET ...
+                DB-->>-IncidentRepo: 
+                IncidentRepo-->>-Service: 
+            else Incidente es nuevo
+                Service->>+IncidentRepo: 12b. save(mapped)
+                IncidentRepo->>+DB: INSERT INTO incidents ...
+                DB-->>-IncidentRepo: 
+                IncidentRepo-->>-Service: 
+            end
+        end
+    end
+
+    Service->>+SyncStatusRepo: 14. save(new SyncStatus)
+    SyncStatusRepo->>+DB: 15. UPDATE sync_status SET ...
+    DB-->>-SyncStatusRepo: 
+    SyncStatusRepo-->>-Service: 
+    
+    deactivate Service
+```
+
+**Explicación del Flujo:**
+
+1.  **Disparo Programado (1):** El `Scheduler` de Spring invoca el método `syncIncidents`.
+2.  **Obtener Repositorios (2-3):** El servicio obtiene la lista de todos los repositorios configurados para saber qué servicios de Datadog monitorear.
+3.  **Sincronización Incremental (4-5):** Por cada repositorio, el servicio consulta la tabla `SyncStatus` para obtener la fecha de la última ejecución exitosa.
+4.  **Recolección de Datos (6-9):** El servicio invoca al `DatadogIncidentClient`, pasándole la fecha `since` y el `serviceName`. El cliente construye la URL, realiza la llamada a la API de Datadog y devuelve los datos como DTOs.
+5.  **Procesamiento Idempotente (10-13):** Por cada incidente recibido, el servicio:
+    *   Consulta la base de datos para ver si ya existe.
+    *   Si existe, actualiza sus campos (estado, fecha de resolución, etc.).
+    *   Si no existe, lo mapea a una entidad `Incident` y lo guarda.
+6.  **Actualización de Estado (14-15):** Al finalizar el bucle de repositorios, el servicio actualiza la tabla `SyncStatus` con la fecha y hora actuales, marcando el punto de partida para la próxima ejecución.
+
 #### HU-17: Implementar un Modelo de Acceso "Cerrado por Defecto" en el Arranque
 
 ##### Diagrama de Clases
@@ -2289,6 +2474,265 @@ sequenceDiagram
     deactivate Collector
     deactivate Job
 ```
+
+#### HU-21: Gestión de Repositorios
+
+##### Diagrama de Clases
+```mermaid
+classDiagram
+    direction LR
+
+    subgraph module_api
+        class RepositoryController {
+            <<RestController>>
+            +getAllRepositories(): List<RepositoryDto>
+            +syncRepositories(): ResponseEntity<RepositorySyncResultDto> @PreAuthorize("ADMIN")
+            +updateRepository(Long, UpdateRepositoryRequest): ResponseEntity<RepositoryDto> @PreAuthorize("ADMIN")
+            -mapToDto(RepositoryConfig): RepositoryDto
+        }
+        class RepositoryDto {
+            <<DTO>>
+            +id: Long
+            +repositoryUrl: String
+            +datadogServiceName: String
+            +owner: String
+            +repoName: String
+        }
+        class RepositorySyncResultDto {
+            <<DTO>>
+            +newRepositories: int
+            +totalRepositories: int
+            +unchanged: int
+        }
+        class UpdateRepositoryRequest {
+            <<DTO>>
+            +datadogServiceName: String
+        }
+    end
+
+    subgraph module_domain
+        class RepositorySyncService {
+            <<Interface>>
+            +synchronizeRepositories(): RepositorySyncResult
+        }
+        class RepositorySyncResult {
+            <<Record>>
+            +newRepositories: int
+            +totalRepositories: int
+            +unchanged: int
+        }
+        class GithubRepositoryCollector {
+            <<Interface>>
+            +getOrgRepositories(String organizationName): List<GithubRepositoryDto>
+        }
+        class GithubRepositoryDto {
+            <<Record>>
+            +id: Long
+            +name: String
+            +fullName: String
+            +htmlUrl: String
+            +isPrivate: boolean
+            +owner: Owner
+        }
+        class RepositoryConfig {
+            <<Entity>>
+            -id: Long
+            -repositoryUrl: String
+            -datadogServiceName: String
+            -deploymentWorkflowFileName: String
+            +getOwner(): String
+            +getRepoName(): String
+            +setDatadogServiceName(String): void
+            +getDeploymentWorkflowFileName(): String
+            +setDeploymentWorkflowFileName(String): void
+        }
+        class RepositoryConfigRepository {
+            <<Repository>>
+            +findAll(): List<RepositoryConfig>
+            +findById(Long): Optional<RepositoryConfig>
+            +save(RepositoryConfig): RepositoryConfig
+            +saveAll(List<RepositoryConfig>): List<RepositoryConfig>
+        }
+    end
+
+    subgraph module_collector
+        class RepositorySyncServiceImpl {
+            <<Service>>
+            +synchronizeRepositories(): RepositorySyncResult
+        }
+        class GithubClientImpl {
+            <<Component>>
+            -webClient: WebClient
+            +getOrgRepositories(String organizationName): List<GithubRepositoryDto>
+            -parseNextPageUrl(List<String>): String
+        }
+    end
+
+    %% --- Relaciones ---
+    RepositoryController --> RepositoryConfigRepository : uses
+    RepositoryController --> RepositorySyncService : uses
+    RepositoryController ..> RepositoryDto : returns
+    RepositoryController ..> RepositorySyncResultDto : returns
+    RepositoryController ..> UpdateRepositoryRequest : receives
+
+    RepositorySyncServiceImpl ..|> RepositorySyncService : implements
+    RepositorySyncServiceImpl --> GithubRepositoryCollector : uses
+    RepositorySyncServiceImpl --> RepositoryConfigRepository : uses
+    RepositorySyncServiceImpl ..> RepositorySyncResult : returns
+
+    GithubClientImpl ..|> GithubRepositoryCollector : implements
+    GithubClientImpl ..> GithubRepositoryDto : returns
+
+    RepositoryConfigRepository ..> RepositoryConfig : manages
+```
+
+**Explicación del Diagrama:**
+
+1. **API REST (`RepositoryController`):** Es el punto de entrada para la gestión de repositorios. Expone tres endpoints:
+    - `GET /api/v1/repositories`: Lista todos los repositorios (acceso público).
+    - `POST /api/v1/repositories/sync`: Sincroniza desde GitHub (solo ADMIN).
+    - `PUT /api/v1/repositories/{id}`: Actualiza el `datadogServiceName` (solo ADMIN).
+
+2. **Capa de Dominio:** Define las interfaces y entidades principales:
+    - `RepositorySyncService`: Interfaz que define el contrato de sincronización.
+    - `GithubRepositoryCollector`: Interfaz para obtener repositorios desde GitHub.
+    - `RepositoryConfig`: Entidad que representa un repositorio configurado.
+    - `RepositorySyncResult` y `GithubRepositoryDto`: Records para transferir datos.
+
+3. **Implementación (`module_collector`):**
+    - `RepositorySyncServiceImpl`: Implementa la lógica de sincronización idempotente.
+    - `GithubClientImpl`: Implementa la comunicación con la API de GitHub, manejando paginación.
+
+4. **DTOs de API (`module_api`):** Define los contratos de la API REST.
+
+##### Diagrama de Base de Datos (ERD)
+```mermaid
+erDiagram
+    REPOSITORY_CONFIG {
+        bigint id PK "ID autogenerado"
+        varchar repository_url UK "URL única del repositorio en GitHub"
+        varchar datadog_service_name "Nombre del servicio en Datadog (nullable)"
+        varchar deployment_workflow_file_name "Nombre del workflow de deployment (nullable)"
+    }
+
+    REPOSITORY_CONFIG ||--o{ INCIDENTS : "tiene"
+    REPOSITORY_CONFIG ||--o{ COMMITS : "tiene"
+    REPOSITORY_CONFIG ||--o{ PULL_REQUESTS : "tiene"
+    REPOSITORY_CONFIG ||--o{ DEPLOYMENTS : "tiene"
+```
+
+**Explicación del Diagrama:**
+
+* **`REPOSITORY_CONFIG`**: Tabla central que almacena la configuración de cada repositorio. El campo `repository_url` tiene una restricción `UNIQUE` para garantizar que no se dupliquen repositorios. Los campos `datadog_service_name` y `deployment_workflow_file_name` son opcionales (nullable) y se configuran manualmente por los administradores:
+    - `datadog_service_name`: Vincula el repositorio con un servicio específico en Datadog para sincronizar incidentes.
+    - `deployment_workflow_file_name`: Define el archivo de workflow de GitHub Actions usado para deployments (ej. "deploy.yml", "manual-deploy.yml").
+
+* **Relaciones**: Esta tabla se relaciona con múltiples entidades del sistema:
+    - `INCIDENTS`: Los incidentes están asociados a un servicio de Datadog, que se vincula a través del `datadog_service_name`.
+    - `COMMITS`, `PULL_REQUESTS`, `DEPLOYMENTS`: Todas estas entidades están relacionadas con un repositorio específico.
+
+##### Diagrama de Secuencia
+
+**Caso 1: Sincronización de Repositorios desde GitHub (Admin)**
+
+```mermaid
+sequenceDiagram
+    participant Admin as Admin User
+    participant Controller as RepositoryController
+    participant Service as RepositorySyncService
+    participant RepoRepo as RepositoryConfigRepository
+    participant GithubCollector as GithubRepositoryCollector
+    participant GithubAPI as GitHub API
+    participant DB as Database
+
+    Admin->>+Controller: POST /api/v1/repositories/sync
+    Note over Controller: Verifica rol ADMIN (@PreAuthorize)
+
+    Controller->>+Service: synchronizeRepositories()
+
+    Service->>+GithubCollector: getOrgRepositories(organizationName)
+    GithubCollector->>+GithubAPI: GET /orgs/{org}/repos?type=all&sort=updated&per_page=70
+    GithubAPI-->>-GithubCollector: 200 OK + List<GithubRepositoryDto> + Link header
+
+    loop Paginación (si hay más páginas)
+        GithubCollector->>+GithubAPI: GET <next_page_url_from_link_header>
+        GithubAPI-->>-GithubCollector: 200 OK + más repositorios
+    end
+
+    GithubCollector-->>-Service: List<GithubRepositoryDto>
+
+    Service->>+RepoRepo: findAll()
+    RepoRepo->>DB: SELECT * FROM repository_config
+    DB-->>RepoRepo: List<RepositoryConfig> existentes
+    RepoRepo-->>-Service: List<RepositoryConfig>
+
+    Note over Service: Compara repos de GitHub con repos locales<br/>usando repositoryUrl como clave única
+
+    alt Hay repositorios nuevos
+        Service->>+RepoRepo: saveAll(newRepositories)
+        RepoRepo->>DB: INSERT INTO repository_config (repository_url, datadog_service_name)<br/>VALUES (..., NULL), (..., NULL)
+        DB-->>RepoRepo: Nuevos repositorios creados
+        RepoRepo-->>-Service: List<RepositoryConfig> guardados
+    end
+
+    Service-->>-Controller: RepositorySyncResult(new=3, total=10, unchanged=7)
+    Controller-->>-Admin: 200 OK + RepositorySyncResultDto
+```
+
+**Caso 2: Actualización del Nombre del Servicio de Datadog (Admin)**
+
+```mermaid
+sequenceDiagram
+    participant Admin as Admin User
+    participant Controller as RepositoryController
+    participant RepoRepo as RepositoryConfigRepository
+    participant DB as Database
+
+    Admin->>+Controller: PUT /api/v1/repositories/1<br/>{datadogServiceName: "tesis-backend"}
+    Note over Controller: Verifica rol ADMIN (@PreAuthorize)
+
+    Controller->>+RepoRepo: findById(1)
+    RepoRepo->>DB: SELECT * FROM repository_config WHERE id = 1
+    DB-->>RepoRepo: RepositoryConfig encontrado
+    RepoRepo-->>-Controller: Optional<RepositoryConfig>
+
+    alt Repositorio encontrado
+        Controller->>Controller: repo.setDatadogServiceName("tesis-backend")
+
+        Controller->>+RepoRepo: save(repo)
+        RepoRepo->>DB: UPDATE repository_config<br/>SET datadog_service_name = 'tesis-backend'<br/>WHERE id = 1
+        DB-->>RepoRepo: Actualizado
+        RepoRepo-->>-Controller: RepositoryConfig actualizado
+
+        Controller-->>Admin: 200 OK + RepositoryDto
+    else Repositorio no encontrado
+        Controller-->>Admin: 404 NOT FOUND
+    end
+
+    deactivate Controller
+```
+
+**Explicación de los Flujos:**
+
+**Flujo de Sincronización:**
+
+1. **Autenticación y Autorización (1):** Un administrador realiza una petición POST al endpoint de sincronización. El controlador verifica el rol ADMIN usando `@PreAuthorize`.
+
+2. **Obtención de Repositorios de GitHub (2-5):** El servicio invoca al `GithubRepositoryCollector`, que realiza peticiones paginadas a la API de GitHub (`/orgs/{org}/repos`) usando el nombre de organización configurado en `dora.github.organization-name`. La paginación se maneja automáticamente usando el header `Link` de la respuesta.
+
+3. **Comparación con Repositorios Locales (6-8):** El servicio obtiene todos los repositorios existentes en la base de datos y crea un mapa usando `repositoryUrl` como clave única para comparación eficiente.
+
+4. **Sincronización Idempotente (9-11):** El servicio identifica qué repositorios de GitHub no existen localmente y solo guarda los nuevos. Los repositorios existentes **no se modifican**, preservando su configuración de `datadogServiceName`.
+
+5. **Resultado (12-13):** El servicio retorna estadísticas de la sincronización (nuevos, total, sin cambios).
+
+**Flujo de Actualización:**
+
+1. **Autenticación y Autorización (1):** Un administrador envía una petición PUT para actualizar el `datadogServiceName` de un repositorio.
+
+2. **Búsqueda del Repositorio (2-4):** El controlador busca el repositorio por su ID.
+
+3. **Actualización Condicional (5-9):** Si el repositorio existe, actualiza el campo y lo persiste. Si no existe, retorna 404.
 
 ---
 
@@ -2492,3 +2936,1071 @@ Este runbook detalla el procedimiento para recuperar un entorno de Elastic Beans
 *   **Implementación Clave:** La idempotencia se logra principalmente a través del parámetro `use_existing_version_if_available: true` en la acción `einaregilsson/beanstalk-deploy`.
     *   **Problema Evitado:** Sin este parámetro, si un despliegue falla después de que la nueva versión de la aplicación ya ha sido creada en Elastic Beanstalk, un reintento del pipeline fallaría inmediatamente con un error de "Application Version already exists".
     *   **Solución:** Al establecer este parámetro en `true`, si la acción de despliegue detecta que la `version_label` que intenta crear ya existe, en lugar de fallar, la reutiliza y procede directamente al paso de despliegue. Esto permite que los reintentos del pipeline sean seguros y efectivos.
+
+## 15. Monitoreo y Observabilidad con Datadog
+
+### 15.1. Arquitectura de Monitoreo
+
+El sistema implementa una solución completa de observabilidad usando **Datadog** para recolectar métricas de infraestructura, trazas de APM (Application Performance Monitoring) y logs de aplicación. Esta integración es fundamental para el cálculo de las métricas DORA: MTTR (Mean Time To Recovery) y Change Failure Rate.
+
+```mermaid
+graph TB
+    subgraph "AWS Cloud - us-east-2"
+        subgraph "EC2 Instance - Amazon Linux 2023"
+            DA[Datadog Agent<br/>agent 7.72.1]
+            subgraph "Docker Container"
+                APP[Spring Boot App<br/>Java 24]
+                DDJA[dd-java-agent<br/>v1.55.0]
+            end
+            DA -->|Recolecta logs| DOCKER[Docker API<br/>:2375]
+            DOCKER -->|Container logs| APP
+        end
+        
+        EB[Elastic Beanstalk] -->|Gestiona| EC2
+    end
+    
+    subgraph "Datadog US5"
+        METRICS[Infrastructure<br/>Metrics]
+        APM[APM Traces<br/>& Profiling]
+        LOGS[Log Management]
+    end
+    
+    DDJA -->|APM Traces<br/>172.17.0.1:8126| DA
+    APP -->|JSON Logs<br/>stdout/stderr| DOCKER
+    DA -->|HTTPS:443| METRICS
+    DA -->|HTTPS:443| APM
+    DA -->|HTTPS:443| LOGS
+    
+    style DA fill:#632ca6,color:#fff
+    style DDJA fill:#632ca6,color:#fff
+    style APP fill:#6db33f,color:#fff
+    style METRICS fill:#632ca6,color:#fff
+    style APM fill:#632ca6,color:#fff
+    style LOGS fill:#632ca6,color:#fff
+```
+
+### 15.2. Componentes de Monitoreo
+
+#### 15.2.1. Datadog Agent (Host)
+
+El agente de Datadog se instala automáticamente en cada instancia EC2 mediante el script `.platform/hooks/postdeploy/install_datadog.sh` que se ejecuta después de cada despliegue.
+
+**Configuraciones clave:**
+- **Site**: `us5.datadoghq.com` (región US5)
+- **Logs habilitados**: `logs_enabled: true`
+- **APM non-local traffic**: `apm_non_local_traffic: true` (permite recibir trazas desde contenedores Docker)
+- **Recolección automática de logs**: `container_collect_all: true`
+
+**Responsabilidades:**
+1. Recolectar métricas del sistema (CPU, memoria, disco, red)
+2. Recibir trazas APM del dd-java-agent en puerto `0.0.0.0:8126`
+3. Recolectar logs de contenedores Docker via Docker API
+4. Enviar todos los datos a Datadog US5 via HTTPS
+
+#### 15.2.2. dd-java-agent (Aplicación)
+
+El agente Java de Datadog se inyecta en la aplicación Spring Boot mediante el argumento JVM `-javaagent:dd-java-agent.jar` configurado en el `ENTRYPOINT` del Dockerfile.
+
+**Versión**: 1.55.0 (compatible con Java 24)
+
+**Variables de entorno:**
+```bash
+DD_SERVICE=tesis-backend
+DD_ENV=production
+DD_AGENT_HOST=172.17.0.1  # Gateway de Docker
+DD_LOGS_INJECTION=true
+DD_PROFILING_ENABLED=true
+DD_SITE=us5.datadoghq.com
+```
+
+**Funcionalidades:**
+1. **Instrumentación automática**: Intercepta requests HTTP, queries SQL, llamadas externas
+2. **Trace correlation**: Inyecta `dd.trace_id` y `dd.span_id` en logs (vía MDC de Logback)
+3. **Profiling continuo**: Recolecta flamegraphs de CPU y heap allocation
+4. **Distributed tracing**: Propaga contexto de trazas entre servicios
+
+#### 15.2.3. Logging con Logback
+
+La aplicación usa **Logback** con el encoder **logstash-logback-encoder** para generar logs en formato JSON estructurado.
+
+**Configuración** (`logback-spring.xml`):
+```xml
+<appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+  <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+    <provider class="net.logstash.logback.composite.loggingevent.MdcJsonProvider">
+      <includeMdcKeyName>dd.trace_id</includeMdcKeyName>
+      <includeMdcKeyName>dd.span_id</includeMdcKeyName>
+    </provider>
+    <customFields>{"service":"${DD_SERVICE}","env":"${DD_ENV}"}</customFields>
+  </encoder>
+</appender>
+```
+
+**Ventajas del formato JSON:**
+- Parsing automático en Datadog
+- Correlación de logs con trazas APM via `dd.trace_id`
+- Búsquedas y filtros eficientes
+- Extracción automática de campos (logger, level, timestamp, message)
+
+### 15.3. Integración con Amazon Linux 2023
+
+**Desafío**: Amazon Linux 2023 usa el nuevo sistema de **Platform Hooks** (`.platform/hooks/`) en lugar del legacy `.ebextensions/` para ejecutar scripts post-despliegue.
+
+**Solución**: El script de instalación de Datadog se coloca en:
+```
+.platform/hooks/postdeploy/install_datadog.sh
+```
+
+Este script se ejecuta automáticamente después de cada despliegue y:
+1. Verifica si el agente ya está instalado (evita reinstalaciones innecesarias)
+2. Obtiene el API key desde variables de entorno de Elastic Beanstalk
+3. Instala el agente de Datadog usando el script oficial
+4. Configura APM, logs y tags
+5. Reinicia el servicio `datadog-agent`
+
+### 15.4. Conectividad Docker → Host
+
+**Problema**: Por defecto, el dd-java-agent dentro del contenedor Docker no puede conectarse al Datadog Agent en el host usando `127.0.0.1`.
+
+**Solución**:
+1. El contenedor usa `DD_AGENT_HOST=172.17.0.1` (gateway de Docker)
+2. El Datadog Agent habilita `apm_non_local_traffic: true` para escuchar en `0.0.0.0:8126`
+
+**Diagrama de red:**
+```
+Contenedor (172.17.0.2)  →  Gateway Docker (172.17.0.1:8126)  →  Datadog Agent (host)
+```
+
+### 15.5. Métricas DORA Soportadas
+
+La integración de Datadog permite calcular las siguientes métricas DORA:
+
+#### 15.5.1. MTTR (Mean Time To Recovery)
+
+**Fuentes de datos:**
+- **Logs de errores**: Identifican el inicio de un incidente (error 5xx, excepciones no capturadas)
+- **APM error tracking**: Detecta incrementos en error rate
+- **Logs de recovery**: Identifican cuando el servicio vuelve a estado saludable
+
+**Metodología:**
+1. Detectar inicio de incidente: `status:error OR http.status_code:[500 TO 599]`
+2. Detectar fin de incidente: Retorno a `http.status_code:200` y ausencia de errores
+3. Calcular duración: `recovery_timestamp - incident_timestamp`
+
+#### 15.5.2. Change Failure Rate
+
+**Fuentes de datos:**
+- **APM Service Performance**: Error rate post-deployment
+- **Logs de deployment**: Eventos de GitHub Actions con commit SHA
+- **Error tracking**: Nuevos tipos de errores introducidos post-deployment
+
+**Metodología:**
+1. Correlacionar deployment events con commit SHA
+2. Comparar error rate 1h pre-deployment vs 1h post-deployment
+3. Calcular: `(deployments con incremento de errores) / (total deployments)`
+
+#### 15.5.3. Métricas ya implementadas
+
+- **Deploy Frequency**: Ya calculada via GitHub API (módulo `module-dora`)
+- **Lead Time for Changes**: Ya calculada via GitHub API (tiempo entre commit y merge a main)
+
+### 15.6. Dashboards y Alertas Recomendadas
+
+**Dashboards sugeridos:**
+1. **Infrastructure Overview**: CPU, memoria, disco, red del host EC2
+2. **APM Service Dashboard**: Latencia p50/p95/p99, throughput, error rate
+3. **DORA Metrics Dashboard**: MTTR, Change Failure Rate, Deploy Frequency, Lead Time
+4. **Error Tracking**: Top errores, stack traces, affected endpoints
+
+**Alertas críticas:**
+1. Error rate > 5% por 5 minutos consecutivos
+2. Latencia p95 > 2 segundos
+3. CPU > 80% por 10 minutos
+4. Memoria > 90%
+5. Disco > 85%
+
+### 15.7. Costos de Datadog
+
+**Free Trial**: 14 días con acceso completo
+**Estimación post-trial** (1 host, 1 servicio APM):
+- Infrastructure Monitoring: $15/mes
+- APM: $31/mes (hasta 150GB de trazas ingeridas)
+- Log Management: Variable según volumen (primeros 150GB gratis)
+- **Total estimado**: ~$46/mes
+
+**Nota para la tesis**: El despliegue se destruirá después de la defensa (14 de diciembre), por lo que el costo total será < $50 para todo el periodo de evaluación.
+
+## 16. Definición y Cálculo de Métricas DORA
+
+### 16.1. Contexto y Marco Teórico
+
+Las métricas DORA (DevOps Research and Assessment) son cuatro indicadores clave de rendimiento (KPIs) que predicen el desempeño general del negocio según la investigación de Forsgren et al. (2018). Estas métricas se dividen en dos categorías:
+
+**Velocidad (Velocity)**:
+- Deployment Frequency (DF)
+- Lead Time for Changes (LTFC)
+
+**Estabilidad (Stability)**:
+- Change Failure Rate (CFR)
+- Mean Time to Restore (MTTR)
+
+La implementación en este proyecto sigue las mejores prácticas descritas en el paper "Fully Automated DORA Metrics Measurement for Continuous Improvement" (Rüegger et al., 2024), que enfatiza la automatización completa basada en datos de herramientas DevOps.
+
+### 16.2. Arquitectura de Módulos
+
+La implementación de métricas DORA en el sistema sigue una arquitectura modular basada en paquetes:
+
+```
+org.grubhart.pucp.tesis
+├── module_collector/        # Recolección de datos de fuentes externas
+│   ├── github/              # Cliente de GitHub API
+│   └── service/             # Servicios de sincronización
+├── module_processor/        # Cálculo de métricas
+│   ├── DeploymentFrequencyService
+│   ├── LeadTimeCalculationService
+│   ├── (pendiente) MTTRCalculationService
+│   └── (pendiente) CFRCalculationService
+├── module_domain/           # Entidades y repositorios
+│   ├── Deployment
+│   ├── Commit
+│   ├── ChangeLeadTime
+│   └── (pendiente) Incident
+└── module_api/              # Endpoints REST
+    └── DashboardController  # Exposición de métricas
+```
+
+**Flujo de datos**:
+1. **Recolección**: `module_collector` obtiene datos de GitHub API y Datadog API
+2. **Persistencia**: Datos crudos se almacenan en BD via `module_domain`
+3. **Procesamiento**: `module_processor` calcula métricas derivadas
+4. **Exposición**: `module_api` expone métricas via REST
+
+### 16.3. Fuentes de Datos
+
+| Métrica | Eventos Raw | Eventos Calculados | Fuente de Datos | Paquete Responsable |
+|---------|-------------|-------------------|-----------------|---------------------|
+| **DF** | Deployments | - | GitHub Actions (Workflows) | `module_collector.github` |
+| **LTFC** | Commits, Deployments | Changes | GitHub API | `module_collector.github` |
+| **MTTR** | Alerts/Incidents | Incidents | Datadog Monitoring | `module_collector.datadog` (pendiente) |
+| **CFR** | Deployments, Alerts | Changes, Incidents | GitHub + Datadog | `module_collector` + `module_processor` |
+
+### 16.4. Deployment Frequency (DF)
+
+#### 16.4.1. Definición
+
+El Deployment Frequency mide "con qué frecuencia una organización despliega código a producción o lo libera a usuarios finales" (Forsgren et al., 2018).
+
+**Fórmula**:
+```
+DF = Σ(deployments) / período_tiempo
+```
+
+**Pregunta clave**: ¿Con qué frecuencia desplegamos a producción?
+
+#### 16.4.2. Implementación Actual
+
+**Clase**: `org.grubhart.pucp.tesis.module_processor.DeploymentFrequencyService`
+
+**Definición técnica de Deployment**:
+Un deployment es un evento de despliegue exitoso a un entorno específico (ej: `production`) registrado en GitHub Actions.
+
+**Características**:
+- SHA del commit desplegado
+- Timestamp de creación
+- Entorno de destino (`production`, `staging`, etc.)
+- Estado (`success`, `failure`, etc.)
+
+**Modelo de datos**:
+```java
+@Entity
+public class Deployment {
+    @Id
+    private Long id;
+    private String sha;
+    private LocalDateTime createdAt;
+    private String environment;
+    private String status;
+    private boolean leadTimeProcessed; // Flag para evitar reprocesamiento
+}
+```
+
+**Método de cálculo**:
+
+```java
+public List<DeploymentFrequency> calculate(
+    String environment, 
+    LocalDate rangeStart, 
+    LocalDate rangeEnd, 
+    PeriodType periodType) {
+    
+    // Agrupa deployments por período (WEEKLY, BIWEEKLY, MONTHLY)
+    List<Deployment> deployments = deploymentRepository
+        .findByEnvironmentAndCreatedAtBetween(environment, periodStart, periodEnd);
+    
+    return new DeploymentFrequency(periodStart, periodEnd, deployments.size());
+}
+```
+
+**Tipos de período soportados**:
+- `WEEKLY`: Lunes a Domingo
+- `BIWEEKLY`: Períodos de 2 semanas
+- `MONTHLY`: Mes calendario completo
+
+**Ejemplo**:
+```
+Período: Semana del 6-12 Nov 2024
+Deployments exitosos: 5
+DF = 5 deployments / semana
+```
+
+#### 16.4.3. Recolección de Datos
+
+**Fuente**: GitHub Deployments API
+
+**Endpoint**:
+```
+GET /repos/{owner}/{repo}/deployments
+Query params:
+  - environment: production
+  - created_after: {start_date}
+  - created_before: {end_date}
+```
+
+**Servicio**: `DeploymentSyncService` en `module_collector.service`
+
+**Frecuencia de sincronización**: Cada 15 minutos (configurable via cron)
+
+### 16.5. Lead Time for Changes (LTFC)
+
+#### 16.5.1. Definición
+
+El Lead Time for Changes mide "cuánto tiempo toma ir desde código commiteado hasta código ejecutándose exitosamente en producción" (Forsgren et al., 2018).
+
+**Fórmula**:
+```
+LTFC = Σ(lead_time_per_commit) / Σ(commits)
+
+donde:
+lead_time_per_commit = deployment_timestamp - first_commit_timestamp
+```
+
+**Pregunta clave**: ¿Cuánto tardamos en llevar un cambio a producción?
+
+#### 16.5.2. Implementación Actual
+
+**Clase**: `org.grubhart.pucp.tesis.module_processor.LeadTimeCalculationService`
+
+**Definición técnica de Change**:
+Un change es el conjunto de commits incluidos en un deployment específico, desde el deployment anterior hasta el deployment actual.
+
+**Algoritmo de cálculo** (basado en traversal de grafo Git):
+
+1. **Identificar boundary commits**: Commits del deployment anterior
+2. **Traversal hacia atrás**: Desde commit actual hasta boundary commits
+3. **Calcular lead time**: Para cada commit nuevo, calcular duración
+4. **Persistir**: Guardar en tabla `ChangeLeadTime`
+
+**Pseudocódigo**:
+```java
+for (Deployment currentDeployment : unprocessedDeployments) {
+    // 1. Obtener deployment anterior
+    Optional<Deployment> previousDeployment = findPreviousDeployment(currentDeployment);
+    
+    // 2. Obtener commits del deployment anterior (boundary)
+    Set<String> boundaryCommitShas = getAllCommitsForDeployment(previousDeployment);
+    
+    // 3. Traversal BFS desde current deployment hasta boundary
+    Set<Commit> newCommits = getAllCommitsForDeployment(currentDeployment, boundaryCommitShas);
+    
+    // 4. Calcular lead time para cada commit nuevo
+    for (Commit commit : newCommits) {
+        long leadTimeSeconds = Duration.between(
+            commit.getDate(), 
+            currentDeployment.getCreatedAt()
+        ).getSeconds();
+        
+        saveChangeLeadTime(commit, currentDeployment, leadTimeSeconds);
+    }
+    
+    // 5. Marcar deployment como procesado
+    currentDeployment.setLeadTimeProcessed(true);
+}
+```
+
+**Modelo de datos**:
+```java
+@Entity
+public class ChangeLeadTime {
+    @Id
+    private Long id;
+    
+    @ManyToOne
+    private Commit commit;
+    
+    @ManyToOne
+    private Deployment deployment;
+    
+    private Long leadTimeInSeconds;
+}
+
+@Entity
+public class Commit {
+    @Id
+    private Long id;
+    private String sha;
+    private LocalDateTime date;
+    private String message;
+    
+    @ManyToMany
+    private Set<Commit> parents; // Grafo de commits Git
+}
+```
+
+**Ejemplo**:
+```
+Deployment 1: 2024-11-01 10:00:00
+  Commits: [A, B, C]
+
+Deployment 2: 2024-11-08 15:30:00
+  Commits: [D, E, F]
+  
+Lead times:
+  Commit D (2024-11-05 09:00): 6h 30m = (15:30 - 09:00) = 23400s
+  Commit E (2024-11-07 14:00): 1h 30m = (15:30 - 14:00) = 5400s
+  Commit F (2024-11-08 14:00): 1h 30m = (15:30 - 14:00) = 5400s
+  
+LTFC promedio = (23400 + 5400 + 5400) / 3 = 11400s = 3.17 horas
+```
+
+#### 16.5.3. Limitaciones y Consideraciones
+
+**Prácticas Git incompatibles**:
+- **Squash merges**: Pierden historial de commits individuales
+- **Rebase**: Reescribe timestamps de commits
+- **Amend commits**: Modifica metadata de commit original
+
+**Solución actual**:
+El sistema asume desarrollo basado en **trunk-based development** con merge commits preservados.
+
+**Recomendación**: Configurar GitHub para usar "Merge commits" (no squash ni rebase) en PRs.
+
+### 16.6. Mean Time to Restore (MTTR)
+
+#### 16.6.1. Definición
+
+El MTTR mide "cuánto tiempo generalmente toma restaurar el servicio cuando ocurre un incidente o defecto que impacta a los usuarios" (Forsgren et al., 2018).
+
+**Fórmula**:
+```
+MTTR = Σ(incident_duration) / Σ(incidents)
+
+donde:
+incident_duration = resolved_timestamp - started_timestamp
+```
+
+**Pregunta clave**: ¿Qué tan rápido nos recuperamos de una falla?
+
+#### 16.6.2. Definición Técnica de Incident
+
+Un **incident** es un estado defectuoso del sistema que impacta a usuarios, caracterizado por:
+
+**Criterios de incident**:
+- Interrupción no planificada del servicio
+- Degradación significativa del rendimiento
+- Errores que impactan a usuarios finales
+
+**NO son incidents**:
+- Bugs menores sin impacto en producción
+- Degradaciones imperceptibles para usuarios
+- Mantenimientos planificados
+
+**Estados de incident** (Datadog):
+- `active`: Incident en curso
+- `stable`: Incident estabilizado pero no resuelto
+- `resolved`: Incident completamente resuelto
+
+**Severidades** (Datadog):
+- `SEV-1`: Crítico - Servicio completamente caído
+- `SEV-2`: Alto - Degradación severa
+- `SEV-3`: Medio - Impacto parcial
+- `SEV-4`: Bajo - Impacto menor
+
+#### 16.6.3. Implementación Propuesta
+
+**Fuente de datos**: Datadog Incidents API
+
+**Endpoint**:
+```
+GET https://api.us5.datadoghq.com/api/v2/incidents
+Query params:
+  - page[size]: 100
+  - filter[query]: service:tesis-backend
+  - filter[created][start]: {start_timestamp}
+  - filter[created][end]: {end_timestamp}
+```
+
+**Modelo de datos propuesto**:
+```java
+package org.grubhart.pucp.tesis.module_domain;
+
+@Entity
+public class Incident {
+    @Id
+    private String id; // ID de Datadog
+    private String service;
+    private Instant startTime;
+    private Instant endTime;
+    private String severity; // SEV-1, SEV-2, etc.
+    private String state; // active, stable, resolved
+    private String title;
+    
+    public Long getDurationSeconds() {
+        if (endTime == null) return null;
+        return Duration.between(startTime, endTime).getSeconds();
+    }
+}
+```
+
+**Servicio propuesto**:
+```java
+package org.grubhart.pucp.tesis.module_processor;
+
+@Service
+public class MTTRCalculationService {
+    
+    private final IncidentRepository incidentRepository;
+    
+    public MTTR calculate(String service, LocalDate start, LocalDate end) {
+        List<Incident> resolvedIncidents = incidentRepository
+            .findByServiceAndStateAndStartTimeBetween(
+                service, 
+                "resolved", 
+                start.atStartOfDay(), 
+                end.atTime(23, 59, 59)
+            );
+        
+        if (resolvedIncidents.isEmpty()) {
+            return new MTTR(start, end, 0, 0L);
+        }
+        
+        long totalDuration = resolvedIncidents.stream()
+            .mapToLong(Incident::getDurationSeconds)
+            .sum();
+        
+        long avgDuration = totalDuration / resolvedIncidents.size();
+        
+        return new MTTR(start, end, resolvedIncidents.size(), avgDuration);
+    }
+}
+```
+
+**Ejemplo de cálculo**:
+```
+Período: Semana del 6-12 Nov 2024
+Incidents resueltos: 3
+
+Incident 1: SEV-2, duración 300s (5 min)
+Incident 2: SEV-3, duración 120s (2 min)
+Incident 3: SEV-1, duración 600s (10 min)
+
+Total duration: 1020s
+MTTR = 1020s / 3 = 340s = 5.67 minutos
+```
+
+#### 16.6.4. Detección de Incidents vía Datadog Monitors
+
+**Alertas configuradas**:
+
+1. **High Error Rate**:
+```
+alert {
+  query: "avg(last_5m):sum:trace.servlet.request.errors{service:tesis-backend} / sum:trace.servlet.request.hits{service:tesis-backend} > 0.05"
+  message: "Error rate > 5% on tesis-backend"
+  severity: SEV-2
+}
+```
+
+2. **High Latency P95**:
+```
+alert {
+  query: "avg(last_5m):p95:trace.servlet.request.duration{service:tesis-backend} > 2000"
+  message: "P95 latency > 2s on tesis-backend"
+  severity: SEV-3
+}
+```
+
+3. **Service Unavailable**:
+```
+alert {
+  query: "avg(last_5m):sum:trace.servlet.request.hits{service:tesis-backend} < 1"
+  message: "No requests received - service down?"
+  severity: SEV-1
+}
+```
+
+### 16.7. Change Failure Rate (CFR)
+
+#### 16.7.1. Definición
+
+El CFR mide "qué porcentaje de cambios a producción resultan en servicios degradados y requieren remediación" (Forsgren et al., 2018).
+
+**Fórmula**:
+```
+CFR = Σ(incidents) / Σ(deployments)
+```
+
+**Pregunta clave**: ¿Qué proporción de nuestros deployments causan problemas?
+
+#### 16.7.2. Metodología de Cálculo
+
+**Nota importante**: Según Rüegger et al. (2024), es prácticamente imposible correlacionar un incident específico con el deployment exacto que lo causó. Por ello, el CFR se calcula como el **ratio entre incidents y deployments en un periodo dado**, no como correlación directa.
+
+**Razones para esta aproximación**:
+1. Un deployment puede causar múltiples incidents
+2. Un incident puede ser causado por interacción de múltiples deployments
+3. Algunos incidents no están relacionados con deployments (infraestructura, tráfico, etc.)
+
+#### 16.7.3. Implementación Propuesta
+
+**Servicio propuesto**:
+```java
+package org.grubhart.pucp.tesis.module_processor;
+
+@Service
+public class CFRCalculationService {
+    
+    private final DeploymentRepository deploymentRepository;
+    private final IncidentRepository incidentRepository;
+    
+    public CFR calculate(String service, LocalDate start, LocalDate end) {
+        // Contar deployments exitosos en el período
+        long deploymentCount = deploymentRepository
+            .countByEnvironmentAndCreatedAtBetween(
+                "production", 
+                start.atStartOfDay(), 
+                end.atTime(23, 59, 59)
+            );
+        
+        // Contar incidents en el mismo período
+        long incidentCount = incidentRepository
+            .countByServiceAndStartTimeBetween(
+                service,
+                start.atStartOfDay(),
+                end.atTime(23, 59, 59)
+            );
+        
+        if (deploymentCount == 0) {
+            return new CFR(start, end, 0, 0, 0.0);
+        }
+        
+        double rate = (double) incidentCount / deploymentCount;
+        
+        return new CFR(start, end, deploymentCount, incidentCount, rate);
+    }
+}
+```
+
+**Modelo de datos**:
+```java
+public class CFR {
+    private final LocalDate periodStart;
+    private final LocalDate periodEnd;
+    private final long deploymentCount;
+    private final long incidentCount;
+    private final double rate;
+    
+    // rate = incidentCount / deploymentCount
+}
+```
+
+**Ejemplo de cálculo**:
+```
+Período: Semana del 6-12 Nov 2024
+Deployments exitosos: 10
+Incidents: 2
+
+CFR = 2 / 10 = 0.20 = 20%
+```
+
+#### 16.7.4. Interpretación de Valores
+
+**Valores posibles**:
+- `CFR = 0.0` (0%): Todos los deployments exitosos, sin incidents
+- `CFR = 0.15` (15%): 15 de cada 100 deployments resultan en incident
+- `CFR > 1.0` (>100%): Múltiples incidents por deployment (problema severo)
+
+**Rangos según DORA (2022)**:
+- **Elite**: 0-15%
+- **High**: 16-30%
+- **Medium**: 31-45%
+- **Low**: >45%
+
+**CFR > 1.0 es válido**:
+Un CFR mayor a 1.0 indica que, en promedio, cada deployment genera más de un incident. Esto es una señal de:
+- Deployments altamente problemáticos
+- Múltiples subsistemas afectados por un cambio
+- Necesidad urgente de mejorar testing y QA
+
+#### 16.7.5. Limitaciones
+
+**Incidents no relacionados con deployments**:
+El CFR incluye todos los incidents del período, incluso aquellos causados por:
+- Fallos de infraestructura (no código)
+- Picos de tráfico inesperados
+- Degradación de servicios externos
+- Problemas de red/DNS
+
+**Justificación**: Estos incidents igualmente afectan la estabilidad del sistema y deben considerarse al evaluar el impacto de cambios.
+
+**Ventana temporal**:
+El período de cálculo debe ser el mismo para deployments e incidents. Se recomienda:
+- **7 días** para análisis continuo (ventana deslizante)
+- **Semanal/mensual** para reportes agregados
+
+### 16.8. Integración con Datadog API - Implementación
+
+Esta sección documenta la implementación completa de la sincronización de incidentes desde Datadog, desarrollada siguiendo TDD (Test-Driven Development).
+
+#### 16.8.1. Modelo de Datos
+
+**Entidad Incident** - `module_domain/Incident.java`:
+
+```java
+@Entity
+@Table(name = "incidents")
+public class Incident {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String datadogIncidentId;  // ID único de Datadog
+
+    @Column(nullable = false)
+    private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IncidentState state;  // ACTIVE, STABLE, RESOLVED
+
+    @Enumerated(EnumType.STRING)
+    private IncidentSeverity severity;  // SEV1, SEV2, SEV3, SEV4, SEV5
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    private LocalDateTime resolvedTime;  // Null si aún activo
+
+    private Long durationSeconds;  // Calculado: resolvedTime - startTime
+
+    private String service;  // "tesis-backend"
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+}
+```
+
+**Repositorio** - `module_domain/IncidentRepository.java`:
+
+```java
+public interface IncidentRepository extends JpaRepository<Incident, Long> {
+
+    Optional<Incident> findByDatadogIncidentId(String datadogIncidentId);
+
+    // Para cálculo de MTTR: incidentes resueltos en un período
+    List<Incident> findByServiceAndStateAndStartTimeBetween(
+        String service,
+        IncidentState state,
+        LocalDateTime start,
+        LocalDateTime end
+    );
+
+    // Para cálculo de CFR: contar incidentes en un período
+    long countByServiceAndStartTimeBetween(
+        String service,
+        LocalDateTime start,
+        LocalDateTime end
+    );
+}
+```
+
+#### 16.8.2. DTOs de Datadog API
+
+**Paquete**: `module_collector/datadog/dto/`
+
+La API de Datadog Incidents v2 retorna JSON con estructura anidada:
+
+```java
+public record DatadogIncidentResponse(
+    List<DatadogIncidentData> data,
+    DatadogMeta meta
+) {}
+
+public record DatadogIncidentData(
+    String id,  // "incident-123"
+    String type,  // "incidents"
+    DatadogIncidentAttributes attributes
+) {}
+
+public record DatadogIncidentAttributes(
+    String title,
+    @JsonProperty("customer_impact_scope") String customerImpactScope,
+    Instant created,
+    Instant modified,
+    Instant resolved,  // Null si activo
+    String state,  // "active", "stable", "resolved"
+    String severity,  // "SEV-1", "SEV-2", etc.
+    DatadogIncidentFields fields
+) {}
+```
+
+**Ventajas de usar records**:
+- Inmutabilidad por defecto
+- Menos boilerplate (sin getters/setters explícitos)
+- Serialización/deserialización automática con Jackson
+
+#### 16.8.3. Cliente HTTP - DatadogIncidentClient
+
+**Ubicación**: `module_collector/datadog/DatadogIncidentClient.java`
+
+```java
+@Component
+public class DatadogIncidentClient {
+
+    private final WebClient webClient;
+
+    @Autowired
+    public DatadogIncidentClient(
+            WebClient.Builder webClientBuilder,
+            @Value("${datadog.base-url:https://us5.datadoghq.com}") String baseUrl,
+            @Value("${datadog.api-key}") String apiKey,
+            @Value("${datadog.application-key}") String applicationKey) {
+
+        this.webClient = webClientBuilder
+                .baseUrl(baseUrl)
+                .defaultHeader("DD-API-KEY", apiKey)
+                .defaultHeader("DD-APPLICATION-KEY", applicationKey)
+                .build();
+    }
+
+    public DatadogIncidentResponse getIncidents(Instant since) {
+        String formattedSince = DateTimeFormatter.ISO_INSTANT.format(since);
+        String uri = UriComponentsBuilder.fromPath("/api/v2/incidents")
+                .queryParam("filter[since]", formattedSince)
+                .build()
+                .toUriString();
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(DatadogIncidentResponse.class)
+                .block();
+    }
+}
+```
+
+**Características**:
+- Usa **WebClient** (reactivo) en lugar de RestTemplate
+- **Autenticación dual**: DD-API-KEY + DD-APPLICATION-KEY
+- **Filtro temporal**: `filter[since]` para sincronización incremental
+- **URL encoding automático**: Los corchetes `[]` se encodean como `%5B%5D`
+
+#### 16.8.4. Servicio de Sincronización
+
+**Ubicación**: `module_collector/service/IncidentSyncService.java`
+
+```java
+@Service
+public class IncidentSyncService {
+
+    private static final String JOB_NAME = "DATADOG_INCIDENT_SYNC";
+    private final DatadogIncidentClient datadogClient;
+    private final IncidentRepository incidentRepository;
+    private final SyncStatusRepository syncStatusRepository;
+    private final String serviceName;
+
+    @Scheduled(fixedRate = 900000)  // Cada 15 minutos
+    public void syncIncidents() {
+        Instant since = getLastSyncTimestamp();
+        DatadogIncidentResponse response = datadogClient.getIncidents(since);
+
+        int created = 0, updated = 0;
+
+        for (DatadogIncidentData incidentData : response.data()) {
+            Incident incident = mapToIncident(incidentData);
+            Optional<Incident> existing = incidentRepository
+                .findByDatadogIncidentId(incident.getDatadogIncidentId());
+
+            if (existing.isPresent()) {
+                updateIncident(existing.get(), incident);
+                updated++;
+            } else {
+                incidentRepository.save(incident);
+                created++;
+            }
+        }
+
+        updateSyncStatus();
+        log.info("Incident sync completed: {} created, {} updated", created, updated);
+    }
+
+    private Incident mapToIncident(DatadogIncidentData data) {
+        LocalDateTime createdAt = LocalDateTime.ofInstant(
+            data.attributes().created(), ZoneOffset.UTC);
+        LocalDateTime resolvedTime = data.attributes().resolved() != null
+            ? LocalDateTime.ofInstant(data.attributes().resolved(), ZoneOffset.UTC)
+            : null;
+
+        // Cálculo automático de duración
+        Long durationSeconds = null;
+        if (resolvedTime != null) {
+            durationSeconds = Duration.between(createdAt, resolvedTime).getSeconds();
+        }
+
+        return new Incident(
+            data.id(),
+            data.attributes().title(),
+            mapState(data.attributes().state()),
+            mapSeverity(data.attributes().severity()),
+            createdAt,
+            resolvedTime,
+            durationSeconds,
+            serviceName,
+            createdAt,
+            LocalDateTime.now()
+        );
+    }
+}
+```
+
+**Lógica de Upsert**:
+1. Consulta incidente por `datadogIncidentId`
+2. Si existe → actualiza estado, resolvedTime, durationSeconds
+3. Si no existe → crea nuevo registro
+
+**Mapeo de Estados**:
+- `"resolved"` → `IncidentState.RESOLVED`
+- `"stable"` → `IncidentState.STABLE`
+- `"active"` / default → `IncidentState.ACTIVE`
+
+**Mapeo de Severidad**:
+- `"SEV-1"` → `IncidentSeverity.SEV1`
+- `"SEV-2"` → `IncidentSeverity.SEV2`
+- etc.
+
+#### 16.8.5. Configuración
+
+**application.properties**:
+
+```properties
+# Datadog Configuration
+datadog.api-key=${DD_API_KEY}
+datadog.application-key=${DD_APPLICATION_KEY}
+datadog.base-url=https://us5.datadoghq.com
+datadog.service-name=tesis-backend
+```
+
+**terraform/variables.tf**:
+
+```hcl
+variable "datadog_application_key" {
+  description = "La clave de aplicación de Datadog para acceder a la API de Incidents."
+  type        = string
+  sensitive   = true
+}
+```
+
+**terraform/beanstalk.tf**:
+
+```hcl
+setting {
+  namespace = "aws:elasticbeanstalk:application:environment"
+  name      = "DD_APPLICATION_KEY"
+  value     = var.datadog_application_key
+}
+```
+
+**IMPORTANTE**: Las claves NUNCA se versionen - se definen solo en `terraform.tfvars` (excluido en `.gitignore`)
+
+#### 16.8.6. Testing (TDD)
+
+La implementación siguió estrictamente Test-Driven Development:
+
+**1. IncidentTest** (5 tests):
+- Getters/setters
+- Constructor con todos los argumentos
+- Equals/hashCode
+- Manejo de incidentes activos (sin resolución)
+
+**2. IncidentRepositoryTest** (@DataJpaTest, 6 tests):
+- Persistencia básica
+- `findByDatadogIncidentId`
+- `findByServiceAndStateAndStartTimeBetween` (filtros complejos)
+- `countByServiceAndStartTimeBetween`
+- Constraint de unicidad en `datadogIncidentId`
+
+**3. DatadogIncidentClientTest** (MockWebServer, 5 tests):
+- Headers de autenticación
+- Query params con URL encoding
+- Deserialización de JSON complejo
+- Manejo de respuestas vacías
+- Manejo de errores HTTP (401, 500)
+
+**4. IncidentSyncServiceTest** (@ExtendWith(MockitoExtension), 7 tests):
+- Sincronización desde epoch (primera vez)
+- Sincronización incremental (desde último sync)
+- Creación de nuevos incidentes
+- Actualización de incidentes existentes
+- Manejo de incidentes activos sin resolución
+- Actualización de SyncStatus
+- Manejo de respuestas vacías
+
+**Cobertura total**: >85% en todos los componentes
+
+### 16.9. Optimizaciones y Consideraciones
+
+#### 16.9.1. Caché de Métricas
+
+**Estrategia**:
+- Cachear métricas calculadas por períodos completos (días/semanas pasadas)
+- Solo recalcular período actual (día/semana en curso)
+- Invalidar caché solo cuando llegan nuevos datos
+
+```java
+@Cacheable(value = "dora-metrics", key = "#metric + '-' + #start + '-' + #end")
+public DoraMetric getMetric(String metric, LocalDate start, LocalDate end) {
+    // Cálculo costoso
+}
+```
+
+#### 16.9.2. Ventanas Temporales
+
+**Recomendación del paper** (Rüegger et al., 2024):
+- **Moving average de 7 días**: Suaviza fluctuaciones de corto plazo
+- **Agregación semanal**: Para análisis de tendencias
+- **Agregación mensual**: Para reportes ejecutivos
+
+#### 16.9.3. Reducción de Llamadas a APIs Externas
+
+**GitHub API**:
+- Rate limit: 5,000 requests/hora (autenticado)
+- Estrategia: Sincronización incremental cada 15 minutos
+
+**Datadog API**:
+- Rate limit: 300 requests/hora
+- Estrategia: Sincronización cada 15 minutos, caché de 1 hora para datos históricos
+
+### 16.10. Referencias
+
+1. Forsgren, N., Humble, J., & Kim, G. (2018). *Accelerate: The Science of Lean Software and DevOps*. IT Revolution Press.
+
+2. Rüegger, J., Kropp, M., Graf, S., & Anslow, C. (2024). Fully Automated DORA Metrics Measurement for Continuous Improvement. *ICSSP '24, München, Germany*.
+
+3. Google Cloud. (2022). *2022 Accelerate State of DevOps Report*. https://cloud.google.com/devops/state-of-devops
+
+4. Datadog API Documentation: https://docs.datadoghq.com/api/latest/incidents/
+
+5. GitHub Deployments API: https://docs.github.com/en/rest/deployments

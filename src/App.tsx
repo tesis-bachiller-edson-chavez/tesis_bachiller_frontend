@@ -3,6 +3,7 @@ import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout';
 import { UserManagementPage } from './pages/UserManagementPage';
+import { RepositoriesPage } from './pages/RepositoriesPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route element={<AuthenticatedLayout />}>
         <Route path="/home" element={<HomePage />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
+        <Route path="/repositories" element={<RepositoriesPage />} />
       </Route>
     </Routes>
   );
