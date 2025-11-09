@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, GitMerge } from 'lucide-react';
+import { Home, Users, GitMerge, FolderGit2 } from 'lucide-react';
 
 interface SideNavProps {
   isAdmin: boolean;
@@ -35,6 +35,9 @@ export const SideNav = ({ isAdmin }: SideNavProps) => {
       <nav className="flex flex-col space-y-2">
         <NavLink to="/home" icon={Home}>
           Home
+        </NavLink>
+        <NavLink to="/repositories" icon={FolderGit2}>
+          Repositorios
         </NavLink>
         {isAdmin && (
           <NavLink to="/admin/users" icon={Users}>

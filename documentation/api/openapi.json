@@ -12,11 +12,169 @@
   ],
   "tags": [
     {
+      "name": "Repositories",
+      "description": "API para gestión de repositorios de GitHub y su configuración con Datadog"
+    },
+    {
       "name": "Users",
       "description": "API para gestión de usuarios de la organización"
+    },
+    {
+      "name": "Datadog",
+      "description": "API para obtener información de Datadog"
     }
   ],
   "paths": {
+    "/api/v1/repositories/{id}": {
+      "put": {
+        "tags": [
+          "Repositories"
+        ],
+        "summary": "Actualizar configuración de un repositorio",
+        "description": "Actualiza la configuración de un repositorio, específicamente el nombre del servicio de Datadog asociado. El campo puede ser null para eliminar la asociación. **Requiere rol de ADMIN**.",
+        "operationId": "updateRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del repositorio a actualizar",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRepositoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Repositorio actualizado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado - requiere rol ADMIN",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Repositorio no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error al actualizar el repositorio",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/repositories/sync": {
+      "post": {
+        "tags": [
+          "Repositories"
+        ],
+        "summary": "Sincronizar repositorios desde GitHub",
+        "description": "Sincroniza la lista de repositorios desde GitHub a la base de datos local de forma idempotente. Solo crea nuevos repositorios sin modificar los existentes. **Requiere rol de ADMIN**.",
+        "operationId": "syncRepositories",
+        "responses": {
+          "200": {
+            "description": "Sincronización completada exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositorySyncResultDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado - requiere rol ADMIN",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositorySyncResultDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error al sincronizar repositorios desde GitHub",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositorySyncResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/sync/deployments": {
+      "post": {
+        "tags": [
+          "admin-controller"
+        ],
+        "operationId": "triggerDeploymentSync",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users": {
       "get": {
         "tags": [
@@ -80,10 +238,169 @@
           }
         }
       }
+    },
+    "/api/v1/repositories": {
+      "get": {
+        "tags": [
+          "Repositories"
+        ],
+        "summary": "Listar todos los repositorios",
+        "description": "Obtiene una lista de todos los repositorios configurados en el sistema, incluyendo su asociación con servicios de Datadog. Disponible para todos los usuarios autenticados.",
+        "operationId": "getAllRepositories",
+        "responses": {
+          "200": {
+            "description": "Lista de repositorios obtenida exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/datadog/services": {
+      "get": {
+        "tags": [
+          "Datadog"
+        ],
+        "summary": "Obtener lista de servicios de Datadog",
+        "description": "Retorna la lista de servicios disponibles en Datadog APM. Esta información se utiliza para configurar el campo `datadogServiceName` en los repositorios. **Requiere rol de ADMIN**.",
+        "operationId": "getServices",
+        "responses": {
+          "200": {
+            "description": "Lista de servicios obtenida exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatadogServiceDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado - requiere rol ADMIN",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatadogServiceDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error al consultar la API de Datadog",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatadogServiceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "RepositoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único del repositorio en la base de datos",
+            "format": "int64",
+            "example": 1
+          },
+          "repositoryUrl": {
+            "type": "string",
+            "description": "URL del repositorio en GitHub",
+            "example": "https://github.com/user/repo"
+          },
+          "datadogServiceName": {
+            "type": "string",
+            "description": "Nombre del servicio en Datadog asociado al repositorio (puede ser null)",
+            "example": "tesis-backend"
+          },
+          "deploymentWorkflowFileName": {
+            "type": "string",
+            "description": "Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null)",
+            "example": "deploy.yml"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Propietario del repositorio extraído de la URL",
+            "example": "user"
+          },
+          "repoName": {
+            "type": "string",
+            "description": "Nombre del repositorio extraído de la URL",
+            "example": "repo"
+          }
+        },
+        "description": "Información de un repositorio configurado"
+      },
+      "UpdateRepositoryRequest": {
+        "type": "object",
+        "properties": {
+          "datadogServiceName": {
+            "type": "string",
+            "description": "Nombre del servicio en Datadog (puede ser null para eliminar la asociación)",
+            "nullable": true,
+            "example": "tesis-backend"
+          },
+          "deploymentWorkflowFileName": {
+            "type": "string",
+            "description": "Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null)",
+            "nullable": true,
+            "example": "deploy.yml"
+          }
+        },
+        "description": "Datos para actualizar un repositorio"
+      },
+      "RepositorySyncResultDto": {
+        "type": "object",
+        "properties": {
+          "newRepositories": {
+            "type": "integer",
+            "description": "Cantidad de repositorios nuevos creados",
+            "format": "int32",
+            "example": 5
+          },
+          "totalRepositories": {
+            "type": "integer",
+            "description": "Total de repositorios en la base de datos después de la sincronización",
+            "format": "int32",
+            "example": 12
+          },
+          "unchanged": {
+            "type": "integer",
+            "description": "Cantidad de repositorios que ya existían y no fueron modificados",
+            "format": "int32",
+            "example": 7
+          }
+        },
+        "description": "Resultado de la sincronización de repositorios desde GitHub"
+      },
       "UserSummaryDto": {
         "type": "object",
         "properties": {
@@ -138,6 +455,14 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "DatadogServiceDto": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string"
           }
         }
       }
