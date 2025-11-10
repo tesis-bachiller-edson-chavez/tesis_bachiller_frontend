@@ -77,11 +77,11 @@ export const RepositoriesPage = () => {
         }
         const data = await response.json();
         console.log('🔍 DEBUG - Servicios cargados (raw):', data);
-        // Filtrar servicios válidos (que tengan serviceName no vacío)
+        // Filtrar servicios válidos (que tengan name no vacío)
         const validServices = data.filter(
           (service: DatadogServiceDto) =>
-            service.serviceName &&
-            service.serviceName.trim() !== ''
+            service.name &&
+            service.name.trim() !== ''
         );
         console.log('🔍 DEBUG - Servicios válidos después de filtrar:', validServices);
         setServices(validServices);
