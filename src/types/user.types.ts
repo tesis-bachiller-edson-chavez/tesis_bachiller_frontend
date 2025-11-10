@@ -94,5 +94,5 @@ export interface UpdateRepositoryRequest {
  */
 export interface DatadogServiceDto {
   /** Nombre del servicio en Datadog */
-  serviceName: string;
+  name: string;
 }

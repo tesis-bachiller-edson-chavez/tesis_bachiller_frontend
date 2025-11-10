@@ -122,8 +122,8 @@ export const RepositoriesTable = ({
                   >
                     <option value="">Sin servicio</option>
                     {services.map((service) => (
-                      <option key={service.serviceName} value={service.serviceName}>
-                        {service.serviceName}
+                      <option key={service.name} value={service.name}>
+                        {service.name}
                       </option>
                     ))}
                   </select>
