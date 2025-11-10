@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { RepositoriesTable } from '@/components/RepositoriesTable';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/layouts/AuthenticatedLayout';
-import { DebugAuthInfo } from '@/components/DebugAuthInfo';
 import type {
   RepositoryDto,
   RepositorySyncResultDto,
