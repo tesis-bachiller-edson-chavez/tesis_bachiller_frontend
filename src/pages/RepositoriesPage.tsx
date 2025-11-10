@@ -221,7 +221,7 @@ export const RepositoriesPage = () => {
         )}
       </div>
       {/* Componente de debug temporal */}
-      <DebugAuthInfo />
+        {/*<DebugAuthInfo /> */}
     </>
   );
 };
