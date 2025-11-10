@@ -39,8 +39,8 @@ const mockRepositories = [
 ];
 
 const mockServices = [
-  { serviceName: 'service-1' },
-  { serviceName: 'service-2' },
+  { name: 'service-1' },
+  { name: 'service-2' },
 ];
 
 describe('RepositoriesPage', () => {

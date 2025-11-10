@@ -13,6 +13,13 @@ describe('AuthenticatedLayout', () => {
       value: { ...originalLocation, href: '', assign: vi.fn() }, // `assign` ya es un mock
     });
     vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Mock sessionStorage para evitar redirección automática en tests
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'initialRedirectDone') return 'true';
+      return null;
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
   });
 
   afterEach(() => {
