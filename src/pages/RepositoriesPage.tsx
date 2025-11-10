@@ -76,8 +76,15 @@ export const RepositoriesPage = () => {
           throw new Error('Error al obtener servicios de Datadog');
         }
         const data = await response.json();
-        console.log('🔍 DEBUG - Servicios cargados:', data);
-        setServices(data);
+        console.log('🔍 DEBUG - Servicios cargados (raw):', data);
+        // Filtrar servicios válidos (que tengan serviceName no vacío)
+        const validServices = data.filter(
+          (service: DatadogServiceDto) =>
+            service.serviceName &&
+            service.serviceName.trim() !== ''
+        );
+        console.log('🔍 DEBUG - Servicios válidos después de filtrar:', validServices);
+        setServices(validServices);
       } catch (err) {
         console.error('❌ Error al cargar servicios de Datadog:', err);
         // No mostramos error al usuario, simplemente permitimos input libre
