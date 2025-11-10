@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SideNav } from '@/components/SideNav';
 
@@ -17,6 +17,8 @@ const AuthContext = createContext<{ user: User | null }>({ user: null });
 export const AuthenticatedLayout = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -39,11 +41,25 @@ export const AuthenticatedLayout = () => {
     fetchUser();
   }, []);
 
+  // Redirigir a /home después del login inicial
+  useEffect(() => {
+    if (!isLoading && user && !sessionStorage.getItem('initialRedirectDone')) {
+      // Marcar que ya hicimos el redirect inicial
+      sessionStorage.setItem('initialRedirectDone', 'true');
+      // Solo redirigir si no estamos ya en /home
+      if (location.pathname !== '/home') {
+        navigate('/home', { replace: true });
+      }
+    }
+  }, [isLoading, user, location.pathname, navigate]);
+
   const handleLogout = async () => {
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${apiUrl}/logout`, { method: 'POST', credentials: 'include' });
       if (response.ok) {
+        // Limpiar el flag de redirect para el próximo login
+        sessionStorage.removeItem('initialRedirectDone');
         window.location.assign('/');
       } else {
         console.error('El logout ha fallado en el servidor');
