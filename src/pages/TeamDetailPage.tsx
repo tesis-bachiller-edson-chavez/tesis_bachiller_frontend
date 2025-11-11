@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/layouts/AuthenticatedLayout';
 import type { TeamDetailDto } from '@/types/user.types';
 import { ArrowLeft, Users, GitBranch, Pencil } from 'lucide-react';
 import { TeamMembersTab } from '@/components/TeamMembersTab';
 import { TeamRepositoriesTab } from '@/components/TeamRepositoriesTab';
-
-type TabType = 'members' | 'repositories';
 
 export const TeamDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +16,6 @@ export const TeamDetailPage = () => {
   const [team, setTeam] = useState<TeamDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('members');
 
   // Check permissions
   const canManageTeam =
@@ -198,53 +196,37 @@ export const TeamDetailPage = () => {
         </Card>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <div className="flex gap-4">
-          <button
-            onClick={() => setActiveTab('members')}
-            className={`pb-4 px-2 border-b-2 font-medium transition-colors ${
-              activeTab === 'members'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            <Users className="h-4 w-4 inline mr-2" />
+      {/* Tabs */}
+      <Tabs defaultValue="members" className="w-full">
+        <TabsList>
+          <TabsTrigger value="members">
+            <Users className="h-4 w-4 mr-2" />
             Miembros
-          </button>
-          <button
-            onClick={() => setActiveTab('repositories')}
-            className={`pb-4 px-2 border-b-2 font-medium transition-colors ${
-              activeTab === 'repositories'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            <GitBranch className="h-4 w-4 inline mr-2" />
+          </TabsTrigger>
+          <TabsTrigger value="repositories">
+            <GitBranch className="h-4 w-4 mr-2" />
             Repositorios
-          </button>
-        </div>
-      </div>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === 'members' && (
+        <TabsContent value="members">
           <TeamMembersTab
             teamId={team.id}
             members={team.members}
             canManage={canManageTeam || false}
             onMembersChange={refreshTeam}
           />
-        )}
-        {activeTab === 'repositories' && (
+        </TabsContent>
+
+        <TabsContent value="repositories">
           <TeamRepositoriesTab
             teamId={team.id}
             repositories={team.repositories}
             canManage={canManageTeam || false}
             onRepositoriesChange={refreshTeam}
           />
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

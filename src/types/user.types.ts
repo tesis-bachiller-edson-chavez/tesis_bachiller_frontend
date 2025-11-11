@@ -100,6 +100,7 @@ export interface DatadogServiceDto {
 /**
  * Información básica de un equipo
  * Para uso en listados
+ * Basado en TeamResponse del OpenAPI (components.schemas.TeamResponse)
  */
 export interface TeamDto {
   /** ID único del equipo */
@@ -111,8 +112,11 @@ export interface TeamDto {
   /** Cantidad de miembros en el equipo */
   memberCount: number;
 
-  /** Nombres de usuarios que son tech leads del equipo */
-  techLeads: string[];
+  /** Cantidad de tech leads en el equipo */
+  techLeadCount: number;
+
+  /** IDs de los tech leads del equipo */
+  techLeadIds: number[];
 
   /** Cantidad de repositorios asignados */
   repositoryCount: number;
@@ -188,10 +192,11 @@ export interface AssignMemberRequest {
 
 /**
  * Request para asignar un repositorio a un equipo
+ * Basado en AssignRepositoryRequest del OpenAPI (components.schemas.AssignRepositoryRequest)
  */
 export interface AssignRepositoryRequest {
   /** ID del repositorio a asignar */
-  repositoryId: number;
+  repositoryConfigId: number;
 }
 
 /**
