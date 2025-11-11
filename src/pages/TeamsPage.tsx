@@ -226,17 +226,8 @@ export const TeamsPage = () => {
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell>{team.memberCount}</TableCell>
                 <TableCell>
-                  {team.techLeads.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                      {team.techLeads.map((lead, idx) => (
-                        <span
-                          key={idx}
-                          className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded"
-                        >
-                          {lead}
-                        </span>
-                      ))}
-                    </div>
+                  {team.techLeadCount > 0 ? (
+                    <span className="font-medium">{team.techLeadCount}</span>
                   ) : (
                     <span className="text-gray-400 italic text-sm">Sin tech leads</span>
                   )}

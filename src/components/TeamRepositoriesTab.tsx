@@ -89,7 +89,7 @@ export const TeamRepositoriesTab = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          repositoryId: selectedRepo.id,
+          repositoryConfigId: selectedRepo.id,
         }),
       });
 

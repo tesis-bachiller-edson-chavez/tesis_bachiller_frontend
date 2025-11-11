@@ -25,14 +25,16 @@ const mockTeams = [
     id: 1,
     name: 'Team Alpha',
     memberCount: 5,
-    techLeads: ['john_doe', 'jane_smith'],
+    techLeadCount: 2,
+    techLeadIds: [1, 2],
     repositoryCount: 3,
   },
   {
     id: 2,
     name: 'Team Beta',
     memberCount: 3,
-    techLeads: [],
+    techLeadCount: 0,
+    techLeadIds: [],
     repositoryCount: 2,
   },
 ];
