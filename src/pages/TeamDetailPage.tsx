@@ -180,7 +180,7 @@ export const TeamDetailPage = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Tech Leads</p>
               <p className="text-2xl font-bold">
-                {team.members.filter((m) => m.isTechLead).length}
+                {team.members.filter((m) => m.techLead).length}
               </p>
             </div>
           </div>

@@ -124,22 +124,26 @@ export interface TeamDto {
 
 /**
  * Información detallada de un miembro del equipo
+ * Basado en TeamMemberResponse del OpenAPI (components.schemas.TeamMemberResponse)
  */
 export interface TeamMemberDto {
   /** ID del usuario */
-  id: number;
+  userId: number;
 
   /** Nombre de usuario de GitHub */
   githubUsername: string;
 
+  /** Email del usuario */
+  email: string;
+
   /** Nombre completo del usuario */
   name: string;
 
-  /** URL del avatar en GitHub */
-  avatarUrl: string;
+  /** Roles asignados al usuario en el sistema */
+  roles: string[];
 
   /** Indica si el usuario es tech lead del equipo */
-  isTechLead: boolean;
+  techLead: boolean;
 }
 
 /**
@@ -181,12 +185,20 @@ export interface UpdateTeamRequest {
 
 /**
  * Request para asignar un miembro a un equipo
+ * Basado en AssignMemberRequest del OpenAPI (components.schemas.AssignMemberRequest)
+ * Nota: El usuario se asigna inicialmente como developer. Para promover a tech lead,
+ * usar el endpoint PUT /api/v1/teams/{id}/members/{userId}/tech-lead
  */
 export interface AssignMemberRequest {
   /** ID del usuario a asignar */
   userId: number;
+}
 
-  /** Indica si el usuario será tech lead */
+/**
+ * Request para actualizar el estado de tech lead de un miembro
+ */
+export interface UpdateTechLeadRequest {
+  /** Indica si el usuario debe ser tech lead */
   isTechLead: boolean;
 }
 
