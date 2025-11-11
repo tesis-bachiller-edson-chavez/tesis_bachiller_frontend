@@ -213,11 +213,14 @@ export interface AssignRepositoryRequest {
 
 /**
  * Usuario disponible para asignación
- * Nota: El OpenAPI define UserSummaryDto sin campo id, pero el backend puede devolverlo
+ * Basado en UserSummaryDto del OpenAPI (components.schemas.UserSummaryDto)
  */
 export interface AvailableUserDto {
-  /** ID del usuario (puede no estar presente según OpenAPI) */
-  id?: number;
+  /** ID interno del usuario en el sistema */
+  id: number;
+
+  /** ID del usuario en GitHub */
+  githubId: number;
 
   /** Nombre de usuario de GitHub */
   githubUsername: string;
@@ -229,5 +232,5 @@ export interface AvailableUserDto {
   avatarUrl: string;
 
   /** Roles del usuario */
-  roles?: string[];
+  roles: string[];
 }
