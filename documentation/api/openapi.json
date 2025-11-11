@@ -21,17 +21,173 @@
     },
     {
       "name": "Datadog",
-      "description": "API para obtener información de Datadog"
+      "description": "API para interactuar con servicios de Datadog"
+    },
+    {
+      "name": "Teams",
+      "description": "API para gestión de equipos de desarrollo, sus miembros (developers y tech leads) y repositorios asignados"
     }
   ],
   "paths": {
+    "/api/v1/teams/{id}": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Obtener detalles de un equipo",
+        "description": "Obtiene información detallada de un equipo específico, incluyendo la lista completa de miembros, tech leads y repositorios asignados.",
+        "operationId": "getTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del equipo obtenidos exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Equipo no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Actualizar un equipo",
+        "description": "Actualiza el nombre y/o la lista de tech leads de un equipo existente. Al actualizar tech leads, los anteriores son removidos y se asignan los nuevos.",
+        "operationId": "updateTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeamRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Equipo actualizado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos (nombre duplicado, tech lead no válido, etc.)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Equipo no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Eliminar un equipo",
+        "description": "Elimina un equipo del sistema. **IMPORTANTE:** Solo se puede eliminar un equipo que no tenga miembros activos. Primero se deben remover todos los miembros.",
+        "operationId": "deleteTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Equipo eliminado exitosamente"
+          },
+          "400": {
+            "description": "No se puede eliminar el equipo porque tiene miembros activos"
+          },
+          "404": {
+            "description": "Equipo no encontrado"
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
     "/api/v1/repositories/{id}": {
       "put": {
         "tags": [
           "Repositories"
         ],
         "summary": "Actualizar configuración de un repositorio",
-        "description": "Actualiza la configuración de un repositorio, específicamente el nombre del servicio de Datadog asociado. El campo puede ser null para eliminar la asociación. **Requiere rol de ADMIN**.",
+        "description": "Actualiza la configuración de un repositorio, específicamente el nombre del servicio de Datadog asociado y el nombre del archivo de workflow de deployment. Ambos campos pueden ser null. **Requiere rol de ADMIN**.",
         "operationId": "updateRepository",
         "parameters": [
           {
@@ -96,6 +252,277 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/teams": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Listar todos los equipos",
+        "description": "Obtiene una lista de todos los equipos configurados en el sistema, incluyendo estadísticas de miembros, tech leads y repositorios asignados.",
+        "operationId": "getAllTeams",
+        "responses": {
+          "200": {
+            "description": "Lista de equipos obtenida exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Crear un nuevo equipo",
+        "description": "Crea un nuevo equipo con nombre único y opcionalmente asigna tech leads al momento de la creación. Los tech leads deben tener el rol TECH_LEAD y no pueden pertenecer a otro equipo.",
+        "operationId": "createTeam",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Equipo creado exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos (nombre duplicado, tech lead no válido, etc.)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/teams/{id}/repositories": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Listar repositorios de un equipo",
+        "description": "Obtiene la lista de repositorios asignados a un equipo. Un equipo puede trabajar en múltiples repositorios y un repositorio puede ser compartido por múltiples equipos.",
+        "operationId": "getTeamRepositories",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de repositorios obtenida exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryConfig"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Equipo no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryConfig"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Asignar un repositorio a un equipo",
+        "description": "Asocia un repositorio con un equipo, permitiendo que el equipo trabaje en ese repositorio. La relación es ManyToMany: un repositorio puede ser asignado a múltiples equipos.",
+        "operationId": "assignRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRepositoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Repositorio asignado exitosamente al equipo"
+          },
+          "400": {
+            "description": "Datos de entrada inválidos (repositorio no encontrado, etc.)"
+          },
+          "404": {
+            "description": "Equipo no encontrado"
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/teams/{id}/members": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Listar miembros de un equipo",
+        "description": "Obtiene la lista completa de miembros de un equipo, incluyendo developers y tech leads, con sus roles y datos de GitHub.",
+        "operationId": "getTeamMembers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de miembros obtenida exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMemberResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Equipo no encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamMemberResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Asignar un miembro a un equipo",
+        "description": "Asigna un usuario (developer o tech lead) a un equipo. El sistema valida automáticamente que: 1) El usuario no pertenezca a otro equipo, 2) Los tech leads tengan el rol TECH_LEAD. **Restricción:** Un usuario solo puede pertenecer a un equipo a la vez.",
+        "operationId": "assignMember",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignMemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Miembro asignado exitosamente al equipo"
+          },
+          "400": {
+            "description": "Datos de entrada inválidos (usuario no encontrado, rol inválido, etc.)"
+          },
+          "404": {
+            "description": "Equipo no encontrado"
+          },
+          "409": {
+            "description": "Conflicto: el usuario ya pertenece a otro equipo"
           }
         },
         "security": [
@@ -271,8 +698,8 @@
         "tags": [
           "Datadog"
         ],
-        "summary": "Obtener lista de servicios de Datadog",
-        "description": "Retorna la lista de servicios disponibles en Datadog APM. Esta información se utiliza para configurar el campo `datadogServiceName` en los repositorios. **Requiere rol de ADMIN**.",
+        "summary": "Obtener servicios de Datadog APM",
+        "description": "Obtiene la lista de servicios con trazas APM activas en el environment configurado. Este endpoint consulta el API de Service Dependencies de Datadog, que automáticamente incluye todos los servicios que tienen instrumentación APM y están enviando trazas. **Requiere rol de ADMIN**.",
         "operationId": "getServices",
         "responses": {
           "200": {
@@ -299,7 +726,7 @@
             }
           },
           "500": {
-            "description": "Error al consultar la API de Datadog",
+            "description": "Error al obtener servicios de Datadog",
             "content": {
               "*/*": {
                 "schema": {
@@ -318,10 +745,157 @@
           }
         ]
       }
+    },
+    "/api/v1/teams/{id}/repositories/{repositoryId}": {
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Remover un repositorio de un equipo",
+        "description": "Desasocia un repositorio de un equipo. El repositorio seguirá existiendo y puede seguir asignado a otros equipos.",
+        "operationId": "removeRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "repositoryId",
+            "in": "path",
+            "description": "ID del repositorio a remover",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Repositorio removido exitosamente del equipo"
+          },
+          "400": {
+            "description": "Datos de entrada inválidos"
+          },
+          "404": {
+            "description": "Equipo o repositorio no encontrado"
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/api/v1/teams/{id}/members/{userId}": {
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Remover un miembro de un equipo",
+        "description": "Remueve un usuario (developer o tech lead) de un equipo. El usuario quedará sin equipo asignado después de esta operación.",
+        "operationId": "removeMember",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID del usuario a remover",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Miembro removido exitosamente del equipo"
+          },
+          "400": {
+            "description": "El usuario no pertenece a este equipo o datos inválidos"
+          },
+          "404": {
+            "description": "Equipo o usuario no encontrado"
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "TeamResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "techLeadCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "repositoryCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "techLeadIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "UpdateTeamRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string"
+          },
+          "techLeadIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
       "RepositoryDto": {
         "type": "object",
         "properties": {
@@ -341,11 +915,6 @@
             "description": "Nombre del servicio en Datadog asociado al repositorio (puede ser null)",
             "example": "tesis-backend"
           },
-          "deploymentWorkflowFileName": {
-            "type": "string",
-            "description": "Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null)",
-            "example": "deploy.yml"
-          },
           "owner": {
             "type": "string",
             "description": "Propietario del repositorio extraído de la URL",
@@ -355,6 +924,11 @@
             "type": "string",
             "description": "Nombre del repositorio extraído de la URL",
             "example": "repo"
+          },
+          "deploymentWorkflowFileName": {
+            "type": "string",
+            "description": "Nombre del archivo de workflow de deployment en GitHub Actions (puede ser null)",
+            "example": "deploy.yml"
           }
         },
         "description": "Información de un repositorio configurado"
@@ -370,12 +944,56 @@
           },
           "deploymentWorkflowFileName": {
             "type": "string",
-            "description": "Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null)",
+            "description": "Nombre del archivo de workflow de deployment en GitHub Actions",
             "nullable": true,
             "example": "deploy.yml"
           }
         },
         "description": "Datos para actualizar un repositorio"
+      },
+      "CreateTeamRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string"
+          },
+          "techLeadIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "AssignRepositoryRequest": {
+        "required": [
+          "repositoryConfigId"
+        ],
+        "type": "object",
+        "properties": {
+          "repositoryConfigId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AssignMemberRequest": {
+        "required": [
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
       },
       "RepositorySyncResultDto": {
         "type": "object",
@@ -458,13 +1076,119 @@
           }
         }
       },
-      "DatadogServiceDto": {
+      "RepositoryInfo": {
         "type": "object",
         "properties": {
-          "serviceName": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "repositoryUrl": {
+            "type": "string"
+          },
+          "datadogServiceName": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "repoName": {
             "type": "string"
           }
         }
+      },
+      "TeamDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamMemberResponse"
+            }
+          },
+          "techLeads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamMemberResponse"
+            }
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepositoryInfo"
+            }
+          }
+        }
+      },
+      "TeamMemberResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "githubUsername": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "roles": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "techLead": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RepositoryConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "repositoryUrl": {
+            "type": "string"
+          },
+          "datadogServiceName": {
+            "type": "string"
+          },
+          "deploymentWorkflowFileName": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "repoName": {
+            "type": "string"
+          }
+        }
+      },
+      "DatadogServiceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nombre del servicio en Datadog",
+            "example": "tesis-backend"
+          }
+        },
+        "description": "Servicio de Datadog"
       }
     }
   }
