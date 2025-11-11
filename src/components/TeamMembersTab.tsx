@@ -8,8 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { TeamMemberDto, AvailableUserDto } from '@/types/user.types';
+import type { TeamMemberDto, AvailableUserDto, AssignRolesRequest } from '@/types/user.types';
 import { UserPlus, X, Crown } from 'lucide-react';
+import { SelectionModal } from '@/components/SelectionModal';
 
 interface TeamMembersTabProps {
   teamId: number;
@@ -24,11 +25,14 @@ export const TeamMembersTab = ({
   canManage,
   onMembersChange,
 }: TeamMembersTabProps) => {
-  const [availableUsers, setAvailableUsers] = useState<AvailableUserDto[]>([]);
+  const [allUsers, setAllUsers] = useState<AvailableUserDto[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
 
-  // Fetch available users when needed
-  const fetchAvailableUsers = async () => {
+  // Fetch all users
+  const fetchAllUsers = async () => {
     setLoadingUsers(true);
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
@@ -36,103 +40,113 @@ export const TeamMembersTab = ({
         credentials: 'include',
       });
       if (!response.ok) {
-        throw new Error('Error al obtener usuarios disponibles');
+        throw new Error('Error al obtener usuarios');
       }
       const data = await response.json();
-
-      // Filter out users who are already members of this team
-      const memberUserIds = new Set(members.map(m => m.userId));
-      const available = data.filter((user: AvailableUserDto) => !memberUserIds.has(user.id));
-
-      setAvailableUsers(available);
+      setAllUsers(data);
     } catch (err) {
-      console.error('Error fetching available users:', err);
-      window.alert('❌ Error al cargar usuarios disponibles');
+      console.error('Error fetching users:', err);
+      window.alert('❌ Error al cargar usuarios');
     } finally {
       setLoadingUsers(false);
     }
   };
 
-  // Handle assign member
-  const handleAssignMember = async () => {
-    await fetchAvailableUsers();
+  // Handle open modal
+  const handleOpenModal = async () => {
+    setSelectedUserIds(new Set());
+    setSearchTerm('');
+    await fetchAllUsers();
+    setShowModal(true);
+  };
 
-    if (availableUsers.length === 0) {
-      window.alert('No hay usuarios disponibles para asignar');
-      return;
+  // Filter available users (not already in team)
+  const availableUsers = allUsers.filter((user) => {
+    const memberUserIds = new Set(members.map((m) => m.userId));
+    return !memberUserIds.has(user.id);
+  });
+
+  // Filter by search term
+  const filteredUsers = availableUsers.filter((user) => {
+    if (!searchTerm) return true;
+    return user.githubUsername.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  // Toggle user selection
+  const toggleUserSelection = (userId: number) => {
+    const newSelection = new Set(selectedUserIds);
+    if (newSelection.has(userId)) {
+      newSelection.delete(userId);
+    } else {
+      newSelection.add(userId);
     }
+    setSelectedUserIds(newSelection);
+  };
 
-    // Create options for the user
-    const userOptions = availableUsers
-      .map((u, idx) => `${idx + 1}. ${u.name} (@${u.githubUsername})`)
-      .join('\n');
+  // Handle confirm selection
+  const handleConfirmSelection = async () => {
+    if (selectedUserIds.size === 0) return;
 
-    const userSelection = window.prompt(
-      `Seleccione un usuario para asignar:\n\n${userOptions}\n\nIngrese el número:`
+    const selectedUsers = allUsers.filter((u) => selectedUserIds.has(u.id));
+
+    // Ask if users should be tech leads
+    const makeTechLeads = window.confirm(
+      `¿Desea asignar a los ${selectedUsers.length} usuario(s) seleccionado(s) como Tech Lead?\n\nSi selecciona "Cancelar", se asignarán solo como Developer.`
     );
 
-    if (!userSelection) return;
-
-    const selectedIndex = parseInt(userSelection, 10) - 1;
-    if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= availableUsers.length) {
-      window.alert('❌ Selección inválida');
-      return;
-    }
-
-    const selectedUser = availableUsers[selectedIndex];
-
-    const isTechLeadResponse = window.confirm(
-      `¿Desea asignar a ${selectedUser.name} como Tech Lead?`
-    );
+    setShowModal(false);
 
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
 
-      // Step 1: Assign member (always as developer initially)
-      const response = await fetch(`${apiUrl}/api/v1/teams/${teamId}/members`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-        }),
-      });
+      // Step 1: Assign each user to the team
+      for (const user of selectedUsers) {
+        const response = await fetch(`${apiUrl}/api/v1/teams/${teamId}/members`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+          }),
+        });
 
-      if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error('No tienes permisos para asignar miembros');
+        if (!response.ok) {
+          if (response.status === 409) {
+            window.alert(`⚠️ ${user.name} ya pertenece a otro equipo. Se omitió.`);
+            continue;
+          }
+          throw new Error(`Error al asignar a ${user.name}`);
         }
-        if (response.status === 409) {
-          throw new Error('El usuario ya pertenece a un equipo');
-        }
-        throw new Error('Error al asignar miembro');
-      }
 
-      // Step 2: If tech lead, update the member's role
-      if (isTechLeadResponse) {
-        const techLeadResponse = await fetch(
-          `${apiUrl}/api/v1/teams/${teamId}/members/${selectedUser.id}/tech-lead`,
-          {
+        // Step 2: If should be tech lead, assign TECH_LEAD role
+        if (makeTechLeads) {
+          // Get current roles and add TECH_LEAD
+          const newRoles = user.roles.includes('TECH_LEAD')
+            ? user.roles
+            : [...user.roles, 'TECH_LEAD'];
+
+          const rolesRequest: AssignRolesRequest = { roles: newRoles };
+
+          const rolesResponse = await fetch(`${apiUrl}/api/v1/users/${user.id}/roles`, {
             method: 'PUT',
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ isTechLead: true }),
-          }
-        );
+            body: JSON.stringify(rolesRequest),
+          });
 
-        if (!techLeadResponse.ok) {
-          // Member was assigned but tech lead promotion failed
-          window.alert('⚠️ Miembro asignado pero no se pudo promover a Tech Lead');
-          onMembersChange();
-          return;
+          if (!rolesResponse.ok) {
+            window.alert(
+              `⚠️ ${user.name} fue asignado al equipo pero no se pudo asignar rol TECH_LEAD`
+            );
+          }
         }
       }
 
-      window.alert('✅ Miembro asignado exitosamente');
+      window.alert('✅ Usuarios asignados exitosamente');
       onMembersChange();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -175,33 +189,36 @@ export const TeamMembersTab = ({
   // Handle toggle tech lead status
   const handleToggleTechLead = async (member: TeamMemberDto) => {
     const action = member.techLead ? 'remover de' : 'asignar como';
-    const confirmed = window.confirm(
-      `¿Desea ${action} Tech Lead a ${member.name}?`
-    );
+    const confirmed = window.confirm(`¿Desea ${action} Tech Lead a ${member.name}?`);
     if (!confirmed) return;
 
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(
-        `${apiUrl}/api/v1/teams/${teamId}/members/${member.userId}/tech-lead`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ isTechLead: !member.techLead }),
-        }
-      );
+
+      // Toggle TECH_LEAD role
+      const newRoles = member.techLead
+        ? member.roles.filter((r) => r !== 'TECH_LEAD')
+        : [...member.roles, 'TECH_LEAD'];
+
+      const rolesRequest: AssignRolesRequest = { roles: newRoles };
+
+      const response = await fetch(`${apiUrl}/api/v1/users/${member.userId}/roles`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(rolesRequest),
+      });
 
       if (!response.ok) {
         if (response.status === 403) {
-          throw new Error('No tienes permisos para modificar Tech Leads');
+          throw new Error('No tienes permisos para modificar roles');
         }
-        throw new Error('Error al actualizar Tech Lead');
+        throw new Error('Error al actualizar rol');
       }
 
-      window.alert('✅ Tech Lead actualizado exitosamente');
+      window.alert('✅ Rol actualizado exitosamente');
       onMembersChange();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -213,9 +230,9 @@ export const TeamMembersTab = ({
     <div>
       {canManage && (
         <div className="mb-4">
-          <Button onClick={handleAssignMember} disabled={loadingUsers}>
+          <Button onClick={handleOpenModal}>
             <UserPlus className="h-4 w-4 mr-2" />
-            {loadingUsers ? 'Cargando...' : 'Asignar Miembro'}
+            Asignar Miembros
           </Button>
         </div>
       )}
@@ -291,6 +308,48 @@ export const TeamMembersTab = ({
           </TableBody>
         </Table>
       )}
+
+      {/* Selection Modal */}
+      <SelectionModal
+        title="Seleccionar Usuarios"
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        items={filteredUsers}
+        selectedIds={selectedUserIds}
+        onToggleSelection={(id) => toggleUserSelection(id as number)}
+        onConfirm={handleConfirmSelection}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por nombre de usuario de GitHub..."
+        getItemId={(user) => user.id}
+        isLoading={loadingUsers}
+        columns={[
+          {
+            header: 'Usuario',
+            render: (user) => (
+              <div>
+                <p className="font-medium">{user.name}</p>
+                <p className="text-xs text-gray-500">@{user.githubUsername}</p>
+              </div>
+            ),
+          },
+          {
+            header: 'Roles Actuales',
+            render: (user) => (
+              <div className="flex flex-wrap gap-1">
+                {user.roles.map((role) => (
+                  <span
+                    key={role}
+                    className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };
