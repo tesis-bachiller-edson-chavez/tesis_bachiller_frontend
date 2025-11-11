@@ -96,3 +96,117 @@ export interface DatadogServiceDto {
   /** Nombre del servicio en Datadog */
   name: string;
 }
+
+/**
+ * Información básica de un equipo
+ * Para uso en listados
+ */
+export interface TeamDto {
+  /** ID único del equipo */
+  id: number;
+
+  /** Nombre del equipo */
+  name: string;
+
+  /** Cantidad de miembros en el equipo */
+  memberCount: number;
+
+  /** Nombres de usuarios que son tech leads del equipo */
+  techLeads: string[];
+
+  /** Cantidad de repositorios asignados */
+  repositoryCount: number;
+}
+
+/**
+ * Información detallada de un miembro del equipo
+ */
+export interface TeamMemberDto {
+  /** ID del usuario */
+  id: number;
+
+  /** Nombre de usuario de GitHub */
+  githubUsername: string;
+
+  /** Nombre completo del usuario */
+  name: string;
+
+  /** URL del avatar en GitHub */
+  avatarUrl: string;
+
+  /** Indica si el usuario es tech lead del equipo */
+  isTechLead: boolean;
+}
+
+/**
+ * Información detallada de un equipo
+ * Incluye miembros y repositorios
+ */
+export interface TeamDetailDto {
+  /** ID único del equipo */
+  id: number;
+
+  /** Nombre del equipo */
+  name: string;
+
+  /** Lista de miembros del equipo */
+  members: TeamMemberDto[];
+
+  /** Lista de repositorios asignados al equipo */
+  repositories: RepositoryDto[];
+}
+
+/**
+ * Datos para crear un nuevo equipo
+ */
+export interface CreateTeamRequest {
+  /** Nombre del equipo (requerido) */
+  name: string;
+
+  /** IDs de usuarios para asignar como tech leads iniciales (opcional) */
+  techLeadIds?: number[];
+}
+
+/**
+ * Datos para actualizar un equipo
+ */
+export interface UpdateTeamRequest {
+  /** Nuevo nombre del equipo */
+  name: string;
+}
+
+/**
+ * Request para asignar un miembro a un equipo
+ */
+export interface AssignMemberRequest {
+  /** ID del usuario a asignar */
+  userId: number;
+
+  /** Indica si el usuario será tech lead */
+  isTechLead: boolean;
+}
+
+/**
+ * Request para asignar un repositorio a un equipo
+ */
+export interface AssignRepositoryRequest {
+  /** ID del repositorio a asignar */
+  repositoryId: number;
+}
+
+/**
+ * Usuario disponible para asignación (sin equipo)
+ */
+export interface AvailableUserDto {
+  /** ID del usuario */
+  id: number;
+
+  /** Nombre de usuario de GitHub */
+  githubUsername: string;
+
+  /** Nombre completo */
+  name: string;
+
+  /** URL del avatar */
+  avatarUrl: string;
+}
