@@ -40,10 +40,24 @@ export const TeamMembersTab = ({
       }
       const data = await response.json();
 
-      // Filter out users who are already members of this team
-      const memberIds = new Set(members.map(m => m.userId));
-      const available = data.filter((user: AvailableUserDto) => !memberIds.has(user.id));
+      console.log('📋 Usuarios obtenidos del API:', data);
+      console.log('📋 Ejemplo de usuario:', data[0]);
 
+      // Filter out users who are already members of this team
+      // Use userId if available, otherwise use githubUsername
+      const memberUserIds = new Set(members.map(m => m.userId));
+      const memberUsernames = new Set(members.map(m => m.githubUsername));
+
+      const available = data.filter((user: AvailableUserDto) => {
+        // If user has id, filter by id
+        if (user.id !== undefined) {
+          return !memberUserIds.has(user.id);
+        }
+        // Otherwise filter by githubUsername
+        return !memberUsernames.has(user.githubUsername);
+      });
+
+      console.log('✅ Usuarios disponibles después de filtrar:', available);
       setAvailableUsers(available);
     } catch (err) {
       console.error('Error fetching available users:', err);
@@ -81,12 +95,21 @@ export const TeamMembersTab = ({
 
     const selectedUser = availableUsers[selectedIndex];
 
+    // Verify user has ID
+    if (!selectedUser.id) {
+      window.alert('❌ Error: El usuario no tiene ID. Verifica la respuesta del API.');
+      console.error('Usuario sin ID:', selectedUser);
+      return;
+    }
+
     const isTechLeadResponse = window.confirm(
       `¿Desea asignar a ${selectedUser.name} como Tech Lead?`
     );
 
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
+
+      console.log('🔄 Asignando usuario con ID:', selectedUser.id);
 
       // Step 1: Assign member (always as developer initially)
       const response = await fetch(`${apiUrl}/api/v1/teams/${teamId}/members`, {
