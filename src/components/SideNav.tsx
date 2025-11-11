@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, GitMerge, FolderGit2 } from 'lucide-react';
+import { Home, Users, GitMerge, FolderGit2, UsersRound } from 'lucide-react';
+import { useAuth } from '@/layouts/AuthenticatedLayout';
 
 interface SideNavProps {
   isAdmin: boolean;
@@ -23,6 +24,14 @@ const NavLink = ({ to, icon: Icon, children }: { to: string; icon: React.Element
 };
 
 export const SideNav = ({ isAdmin }: SideNavProps) => {
+  const { user } = useAuth();
+
+  // Check if user can see teams
+  const canViewTeams =
+    user?.roles.includes('ADMIN') ||
+    user?.roles.includes('ENGINEERING_MANAGER') ||
+    user?.roles.includes('TECH_LEAD');
+
   return (
     <aside className="w-64 flex-shrink-0 border-r bg-gray-50 p-4 flex flex-col">
       {/* Título de la aplicación en la parte superior del SideNav */}
@@ -39,6 +48,11 @@ export const SideNav = ({ isAdmin }: SideNavProps) => {
         <NavLink to="/repositories" icon={FolderGit2}>
           Repositorios
         </NavLink>
+        {canViewTeams && (
+          <NavLink to="/teams" icon={UsersRound}>
+            Equipos
+          </NavLink>
+        )}
         {isAdmin && (
           <NavLink to="/admin/users" icon={Users}>
             Gestión de Usuarios
