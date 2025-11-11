@@ -196,10 +196,21 @@ export interface AssignMemberRequest {
 
 /**
  * Request para actualizar el estado de tech lead de un miembro
+ * @deprecated Usar AssignRolesRequest con endpoint PUT /api/v1/users/{userId}/roles
  */
 export interface UpdateTechLeadRequest {
   /** Indica si el usuario debe ser tech lead */
   isTechLead: boolean;
+}
+
+/**
+ * Request para asignar roles a un usuario
+ * Basado en AssignRolesRequest del OpenAPI (components.schemas.AssignRolesRequest)
+ * IMPORTANTE: Esta operación REEMPLAZA todos los roles existentes
+ */
+export interface AssignRolesRequest {
+  /** Lista de roles a asignar. Reemplaza todos los roles existentes */
+  roles: string[];
 }
 
 /**
