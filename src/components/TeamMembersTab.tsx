@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
 import {
   Table,
   TableBody,
@@ -33,14 +32,19 @@ export const TeamMembersTab = ({
     setLoadingUsers(true);
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(`${apiUrl}/api/v1/teams/available-users`, {
+      const response = await fetch(`${apiUrl}/api/v1/users`, {
         credentials: 'include',
       });
       if (!response.ok) {
         throw new Error('Error al obtener usuarios disponibles');
       }
       const data = await response.json();
-      setAvailableUsers(data);
+
+      // Filter out users who are already members of this team
+      const memberIds = new Set(members.map(m => m.userId));
+      const available = data.filter((user: AvailableUserDto) => !memberIds.has(user.id));
+
+      setAvailableUsers(available);
     } catch (err) {
       console.error('Error fetching available users:', err);
       window.alert('❌ Error al cargar usuarios disponibles');
@@ -83,6 +87,8 @@ export const TeamMembersTab = ({
 
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
+
+      // Step 1: Assign member (always as developer initially)
       const response = await fetch(`${apiUrl}/api/v1/teams/${teamId}/members`, {
         method: 'POST',
         credentials: 'include',
@@ -91,7 +97,6 @@ export const TeamMembersTab = ({
         },
         body: JSON.stringify({
           userId: selectedUser.id,
-          isTechLead: isTechLeadResponse,
         }),
       });
 
@@ -103,6 +108,28 @@ export const TeamMembersTab = ({
           throw new Error('El usuario ya pertenece a un equipo');
         }
         throw new Error('Error al asignar miembro');
+      }
+
+      // Step 2: If tech lead, update the member's role
+      if (isTechLeadResponse) {
+        const techLeadResponse = await fetch(
+          `${apiUrl}/api/v1/teams/${teamId}/members/${selectedUser.id}/tech-lead`,
+          {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isTechLead: true }),
+          }
+        );
+
+        if (!techLeadResponse.ok) {
+          // Member was assigned but tech lead promotion failed
+          window.alert('⚠️ Miembro asignado pero no se pudo promover a Tech Lead');
+          onMembersChange();
+          return;
+        }
       }
 
       window.alert('✅ Miembro asignado exitosamente');
@@ -123,7 +150,7 @@ export const TeamMembersTab = ({
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(
-        `${apiUrl}/api/v1/teams/${teamId}/members/${member.id}`,
+        `${apiUrl}/api/v1/teams/${teamId}/members/${member.userId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -147,7 +174,7 @@ export const TeamMembersTab = ({
 
   // Handle toggle tech lead status
   const handleToggleTechLead = async (member: TeamMemberDto) => {
-    const action = member.isTechLead ? 'remover de' : 'asignar como';
+    const action = member.techLead ? 'remover de' : 'asignar como';
     const confirmed = window.confirm(
       `¿Desea ${action} Tech Lead a ${member.name}?`
     );
@@ -156,14 +183,14 @@ export const TeamMembersTab = ({
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(
-        `${apiUrl}/api/v1/teams/${teamId}/members/${member.id}/tech-lead`,
+        `${apiUrl}/api/v1/teams/${teamId}/members/${member.userId}/tech-lead`,
         {
           method: 'PUT',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ isTechLead: !member.isTechLead }),
+          body: JSON.stringify({ isTechLead: !member.techLead }),
         }
       );
 
@@ -210,14 +237,12 @@ export const TeamMembersTab = ({
           </TableHeader>
           <TableBody>
             {members.map((member) => (
-              <TableRow key={member.id}>
+              <TableRow key={member.userId}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <img src={member.avatarUrl} alt={member.name} />
-                    </Avatar>
                     <div>
                       <p className="font-medium">{member.name}</p>
+                      <p className="text-xs text-gray-500">{member.email}</p>
                     </div>
                   </div>
                 </TableCell>
@@ -232,7 +257,7 @@ export const TeamMembersTab = ({
                   </a>
                 </TableCell>
                 <TableCell>
-                  {member.isTechLead ? (
+                  {member.techLead ? (
                     <span className="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded text-xs font-semibold">
                       <Crown className="h-3 w-3" />
                       Tech Lead
