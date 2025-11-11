@@ -275,7 +275,7 @@ export const TeamMembersTab = ({
                 </TableCell>
                 <TableCell>
                   {member.techLead ? (
-                    <span className="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded text-xs font-semibold">
+                    <span className="inline-flex items-center gap-1 bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold">
                       <Crown className="h-3 w-3" />
                       Tech Lead
                     </span>
