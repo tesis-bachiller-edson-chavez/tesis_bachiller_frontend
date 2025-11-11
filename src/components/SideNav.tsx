@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, GitMerge, FolderGit2, UsersRound } from 'lucide-react';
+import { Home, Users, GitMerge, FolderGit2, UsersRound, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/layouts/AuthenticatedLayout';
 
 interface SideNavProps {
@@ -44,6 +44,9 @@ export const SideNav = ({ isAdmin }: SideNavProps) => {
       <nav className="flex flex-col space-y-2">
         <NavLink to="/home" icon={Home}>
           Home
+        </NavLink>
+        <NavLink to="/dashboard" icon={BarChart3}>
+          Dashboard
         </NavLink>
         <NavLink to="/repositories" icon={FolderGit2}>
           Repositorios
