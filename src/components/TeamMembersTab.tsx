@@ -114,10 +114,10 @@ export const TeamMembersTab = ({
 
         if (!response.ok) {
           if (response.status === 409) {
-            window.alert(`⚠️ ${user.name} ya pertenece a otro equipo. Se omitió.`);
+            window.alert(`⚠️ @${user.githubUsername} ya pertenece a otro equipo. Se omitió.`);
             continue;
           }
-          throw new Error(`Error al asignar a ${user.name}`);
+          throw new Error(`Error al asignar a @${user.githubUsername}`);
         }
 
         // Step 2: If should be tech lead, assign TECH_LEAD role
@@ -140,7 +140,7 @@ export const TeamMembersTab = ({
 
           if (!rolesResponse.ok) {
             window.alert(
-              `⚠️ ${user.name} fue asignado al equipo pero no se pudo asignar rol TECH_LEAD`
+              `⚠️ @${user.githubUsername} fue asignado al equipo pero no se pudo asignar rol TECH_LEAD`
             );
           }
         }
@@ -157,7 +157,7 @@ export const TeamMembersTab = ({
   // Handle remove member
   const handleRemoveMember = async (member: TeamMemberDto) => {
     const confirmed = window.confirm(
-      `¿Está seguro que desea remover a ${member.name} del equipo?`
+      `¿Está seguro que desea remover a @${member.githubUsername} del equipo?`
     );
     if (!confirmed) return;
 
@@ -189,7 +189,7 @@ export const TeamMembersTab = ({
   // Handle toggle tech lead status
   const handleToggleTechLead = async (member: TeamMemberDto) => {
     const action = member.techLead ? 'remover de' : 'asignar como';
-    const confirmed = window.confirm(`¿Desea ${action} Tech Lead a ${member.name}?`);
+    const confirmed = window.confirm(`¿Desea ${action} Tech Lead a @${member.githubUsername}?`);
     if (!confirmed) return;
 
     try {
