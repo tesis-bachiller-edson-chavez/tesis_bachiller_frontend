@@ -5,6 +5,7 @@ import { AuthenticatedLayout } from './layouts/AuthenticatedLayout';
 import { UserManagementPage } from './pages/UserManagementPage';
 import { RepositoriesPage } from './pages/RepositoriesPage';
 import { TeamsPage } from './pages/TeamsPage';
+import { TeamDetailPage } from './pages/TeamDetailPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/repositories" element={<RepositoriesPage />} />
         <Route path="/teams" element={<TeamsPage />} />
+        <Route path="/teams/:id" element={<TeamDetailPage />} />
       </Route>
     </Routes>
   );
