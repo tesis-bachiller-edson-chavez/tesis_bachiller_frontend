@@ -12,6 +12,10 @@
   ],
   "tags": [
     {
+      "name": "Dashboard",
+      "description": "API para métricas del dashboard según rol del usuario"
+    },
+    {
       "name": "Repositories",
       "description": "API para gestión de repositorios de GitHub y su configuración con Datadog"
     },
@@ -836,6 +840,53 @@
         ]
       }
     },
+    "/api/v1/dashboard/developer/metrics": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Obtener métricas del dashboard para Developer",
+        "description": "Retorna métricas personalizadas para el rol Developer. Los datos incluyen únicamente repositorios donde el developer ha realizado commits, estadísticas de commits y pull requests. **Accesible para usuarios con rol DEVELOPER o superior**.",
+        "operationId": "getDeveloperMetrics",
+        "responses": {
+          "200": {
+            "description": "Métricas obtenidas exitosamente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperMetricsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado - requiere rol DEVELOPER o superior",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperMetricsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno al calcular métricas",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperMetricsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
     "/api/v1/teams/{id}/repositories/{repositoryId}": {
       "delete": {
         "tags": [
@@ -1334,6 +1385,204 @@
           }
         },
         "description": "Servicio de Datadog"
+      },
+      "CommitStatsDto": {
+        "type": "object",
+        "properties": {
+          "totalCommits": {
+            "type": "integer",
+            "description": "Número total de commits realizados",
+            "format": "int64",
+            "example": 156
+          },
+          "repositoryCount": {
+            "type": "integer",
+            "description": "Número de repositorios en los que ha participado",
+            "format": "int64",
+            "example": 5
+          },
+          "lastCommitDate": {
+            "type": "string",
+            "description": "Fecha del commit más reciente",
+            "format": "date-time"
+          },
+          "firstCommitDate": {
+            "type": "string",
+            "description": "Fecha del primer commit",
+            "format": "date-time"
+          }
+        },
+        "description": "Estadísticas agregadas de commits de un developer"
+      },
+      "DailyMetricDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Fecha del día",
+            "format": "date",
+            "example": "2025-11-11"
+          },
+          "averageLeadTimeHours": {
+            "type": "number",
+            "description": "Lead time promedio del día en horas (null si no hay datos)",
+            "format": "double",
+            "example": 12.5
+          },
+          "deploymentCount": {
+            "type": "integer",
+            "description": "Número de deployments en el día",
+            "format": "int64",
+            "example": 3
+          },
+          "commitCount": {
+            "type": "integer",
+            "description": "Número de commits desplegados en el día",
+            "format": "int64",
+            "example": 8
+          },
+          "failedDeploymentCount": {
+            "type": "integer",
+            "description": "Número de deployments con fallos en el día",
+            "format": "int64",
+            "example": 0
+          }
+        },
+        "description": "Métrica DORA de un día específico"
+      },
+      "DeveloperDoraMetricsDto": {
+        "type": "object",
+        "properties": {
+          "averageLeadTimeHours": {
+            "type": "number",
+            "description": "Tiempo promedio desde commit hasta deployment en producción (en horas)",
+            "format": "double",
+            "example": 24.5
+          },
+          "minLeadTimeHours": {
+            "type": "number",
+            "description": "Tiempo mínimo de lead time registrado (en horas)",
+            "format": "double",
+            "example": 2.5
+          },
+          "maxLeadTimeHours": {
+            "type": "number",
+            "description": "Tiempo máximo de lead time registrado (en horas)",
+            "format": "double",
+            "example": 168
+          },
+          "totalDeploymentCount": {
+            "type": "integer",
+            "description": "Número total de deployments que incluyen commits del developer",
+            "format": "int64",
+            "example": 45
+          },
+          "deployedCommitCount": {
+            "type": "integer",
+            "description": "Número de commits del developer que han sido desplegados a producción",
+            "format": "int64",
+            "example": 120
+          },
+          "changeFailureRate": {
+            "type": "number",
+            "description": "Change Failure Rate: Porcentaje de deployments que causaron incidentes (0-100)",
+            "format": "double",
+            "example": 15.5
+          },
+          "failedDeploymentCount": {
+            "type": "integer",
+            "description": "Número de deployments del developer que causaron incidentes",
+            "format": "int64",
+            "example": 7
+          },
+          "dailyMetrics": {
+            "type": "array",
+            "description": "Serie de tiempo con métricas DORA por día",
+            "items": {
+              "$ref": "#/components/schemas/DailyMetricDto"
+            }
+          }
+        },
+        "description": "Métricas DORA completas del developer con series de tiempo"
+      },
+      "DeveloperMetricsResponse": {
+        "type": "object",
+        "properties": {
+          "developerUsername": {
+            "type": "string",
+            "description": "Nombre de usuario del developer en GitHub",
+            "example": "john_doe"
+          },
+          "repositories": {
+            "type": "array",
+            "description": "Lista de repositorios en los que el developer ha participado",
+            "items": {
+              "$ref": "#/components/schemas/RepositoryStatsDto"
+            }
+          },
+          "commitStats": {
+            "$ref": "#/components/schemas/CommitStatsDto"
+          },
+          "pullRequestStats": {
+            "$ref": "#/components/schemas/PullRequestStatsDto"
+          },
+          "doraMetrics": {
+            "$ref": "#/components/schemas/DeveloperDoraMetricsDto"
+          }
+        },
+        "description": "Métricas completas del dashboard para un Developer"
+      },
+      "PullRequestStatsDto": {
+        "type": "object",
+        "properties": {
+          "totalPullRequests": {
+            "type": "integer",
+            "description": "Número total de pull requests creados",
+            "format": "int64",
+            "example": 23
+          },
+          "mergedPullRequests": {
+            "type": "integer",
+            "description": "Número de pull requests mergeados",
+            "format": "int64",
+            "example": 20
+          },
+          "openPullRequests": {
+            "type": "integer",
+            "description": "Número de pull requests abiertos actualmente",
+            "format": "int64",
+            "example": 3
+          }
+        },
+        "description": "Estadísticas agregadas de pull requests de un developer"
+      },
+      "RepositoryStatsDto": {
+        "type": "object",
+        "properties": {
+          "repositoryId": {
+            "type": "integer",
+            "description": "ID del repositorio",
+            "format": "int64",
+            "example": 1
+          },
+          "repositoryName": {
+            "type": "string",
+            "description": "Nombre del repositorio",
+            "example": "backend-api"
+          },
+          "repositoryUrl": {
+            "type": "string",
+            "description": "URL del repositorio en GitHub",
+            "example": "https://github.com/org/backend-api"
+          },
+          "commitCount": {
+            "type": "integer",
+            "description": "Número de commits realizados por el developer en este repositorio",
+            "format": "int64",
+            "example": 42
+          }
+        },
+        "description": "Estadísticas de un repositorio para un developer"
       }
     }
   }
