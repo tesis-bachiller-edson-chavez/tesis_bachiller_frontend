@@ -28,21 +28,65 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
     );
   }
 
-  // Format dates for display (YYYY-MM-DD → MM/DD)
-  // Parse date as local timezone to avoid UTC offset issues
-  const formattedData = dailyMetrics.map((metric) => {
-    // Parse YYYY-MM-DD as local date (not UTC)
-    const [year, month, day] = metric.date.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // month is 0-indexed
+  // Helper to get all dates in range
+  const getAllDatesInRange = (startDate: string, endDate: string): string[] => {
+    const dates: string[] = [];
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
 
-    return {
-      ...metric,
-      dateFormatted: date.toLocaleDateString('es-ES', {
-        month: 'short',
-        day: 'numeric',
-      }),
-      successDeployments: metric.deploymentCount - metric.failedDeploymentCount,
-    };
+    const current = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
+    while (current <= end) {
+      const year = current.getFullYear();
+      const month = String(current.getMonth() + 1).padStart(2, '0');
+      const day = String(current.getDate()).padStart(2, '0');
+      dates.push(`${year}-${month}-${day}`);
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  // Get date range
+  const sortedMetrics = [...dailyMetrics].sort((a, b) => a.date.localeCompare(b.date));
+  const minDate = sortedMetrics[0].date;
+  const maxDate = sortedMetrics[sortedMetrics.length - 1].date;
+  const allDates = getAllDatesInRange(minDate, maxDate);
+
+  // Create a map of existing metrics
+  const metricsMap = new Map(dailyMetrics.map(m => [m.date, m]));
+
+  // Fill in missing dates with zero/null values
+  const completeData = allDates.map((date) => {
+    const existing = metricsMap.get(date);
+
+    // Parse date for formatting
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const dateFormatted = dateObj.toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric',
+    });
+
+    if (existing) {
+      return {
+        ...existing,
+        dateFormatted,
+        successDeployments: existing.deploymentCount - existing.failedDeploymentCount,
+      };
+    } else {
+      // Fill missing day with zeros
+      return {
+        date,
+        dateFormatted,
+        averageLeadTimeHours: null,
+        deploymentCount: 0,
+        commitCount: 0,
+        failedDeploymentCount: 0,
+        successDeployments: 0,
+      };
+    }
   });
 
   return (
@@ -54,7 +98,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={formattedData}>
+            <LineChart data={completeData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="dateFormatted" />
               <YAxis label={{ value: 'Horas', angle: -90, position: 'insideLeft' }} />
@@ -66,6 +110,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
                 stroke="#3b82f6"
                 name="Lead Time (hrs)"
                 strokeWidth={2}
+                connectNulls={false}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -79,7 +124,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={formattedData}>
+            <BarChart data={completeData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="dateFormatted" />
               <YAxis label={{ value: 'Deployments', angle: -90, position: 'insideLeft' }} />
@@ -98,7 +143,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={formattedData}>
+            <BarChart data={completeData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="dateFormatted" />
               <YAxis label={{ value: 'Deployments', angle: -90, position: 'insideLeft' }} />
