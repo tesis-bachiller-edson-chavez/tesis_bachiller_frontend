@@ -1,6 +1,18 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Check, ChevronDown } from 'lucide-react';
 import type { RepositoryStatsDto } from '@/types/dashboard.types';
+import { cn } from '@/lib/utils';
 
 interface DashboardFiltersProps {
   repositories: RepositoryStatsDto[];
@@ -25,6 +37,8 @@ export function DashboardFilters({
   onApplyFilters,
   onResetFilters,
 }: DashboardFiltersProps) {
+  const [open, setOpen] = useState(false);
+
   const handleToggleRepository = (repoId: number) => {
     if (selectedRepositoryIds.includes(repoId)) {
       onRepositoryIdsChange(selectedRepositoryIds.filter((id) => id !== repoId));
@@ -42,6 +56,16 @@ export function DashboardFilters({
   };
 
   const allSelected = selectedRepositoryIds.length === repositories.length;
+
+  const selectedReposText = () => {
+    if (selectedRepositoryIds.length === 0) return 'Seleccionar repositorios...';
+    if (selectedRepositoryIds.length === repositories.length) return 'Todos los repositorios';
+    if (selectedRepositoryIds.length === 1) {
+      const repo = repositories.find((r) => r.repositoryId === selectedRepositoryIds[0]);
+      return repo?.repositoryName || '1 repositorio';
+    }
+    return `${selectedRepositoryIds.length} repositorios seleccionados`;
+  };
 
   return (
     <Card>
@@ -77,47 +101,69 @@ export function DashboardFilters({
 
         {/* Repository Selector */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Repositorios
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleSelectAll}
-                className="text-xs text-blue-600 hover:underline"
-                disabled={allSelected}
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Repositorios
+          </label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between"
               >
-                Seleccionar todos
-              </button>
-              <span className="text-gray-400">|</span>
-              <button
-                type="button"
-                onClick={handleDeselectAll}
-                className="text-xs text-blue-600 hover:underline"
-                disabled={selectedRepositoryIds.length === 0}
-              >
-                Deseleccionar todos
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
-            {repositories.map((repo) => (
-              <label
-                key={repo.repositoryId}
-                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedRepositoryIds.includes(repo.repositoryId)}
-                  onChange={() => handleToggleRepository(repo.repositoryId)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="text-sm">{repo.repositoryName}</span>
-              </label>
-            ))}
-          </div>
+                <span className="truncate">{selectedReposText()}</span>
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[400px] p-0">
+              <Command>
+                <CommandInput placeholder="Buscar repositorio..." />
+                <CommandList>
+                  <CommandEmpty>No se encontraron repositorios.</CommandEmpty>
+                  <CommandGroup>
+                    {/* Select/Deselect All Actions */}
+                    <div className="flex gap-2 p-2 border-b">
+                      <button
+                        type="button"
+                        onClick={handleSelectAll}
+                        className="text-xs text-blue-600 hover:underline flex-1 text-left"
+                        disabled={allSelected}
+                      >
+                        Seleccionar todos
+                      </button>
+                      <span className="text-gray-400">|</span>
+                      <button
+                        type="button"
+                        onClick={handleDeselectAll}
+                        className="text-xs text-blue-600 hover:underline flex-1 text-right"
+                        disabled={selectedRepositoryIds.length === 0}
+                      >
+                        Deseleccionar todos
+                      </button>
+                    </div>
+                    {repositories.map((repo) => (
+                      <CommandItem
+                        key={repo.repositoryId}
+                        value={repo.repositoryName}
+                        onSelect={() => handleToggleRepository(repo.repositoryId)}
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedRepositoryIds.includes(repo.repositoryId)
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          )}
+                        />
+                        {repo.repositoryName}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Action Buttons */}
