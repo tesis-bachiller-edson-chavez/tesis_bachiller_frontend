@@ -21,7 +21,7 @@ export function MetricsOverviewCards({
       {/* Total Commits */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-gray-600">Total Commits</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-600">Commits Desplegados</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold">{commitStats.totalCommits}</p>

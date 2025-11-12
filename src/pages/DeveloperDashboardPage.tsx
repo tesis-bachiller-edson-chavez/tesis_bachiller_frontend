@@ -104,15 +104,6 @@ export default function DeveloperDashboardPage() {
     fetchMetrics(dateFrom, dateTo, selectedRepositoryIds);
   };
 
-  const handleResetFilters = () => {
-    const defaultRange = getDefaultDateRange();
-    setDateFrom(defaultRange.from);
-    setDateTo(defaultRange.to);
-    if (allRepositories.length > 0) {
-      const allRepoIds = allRepositories.map((r) => r.repositoryId);
-      setSelectedRepositoryIds(allRepoIds);
-    }
-  };
 
   if (loading) {
     return <div className="p-6">Cargando métricas...</div>;
@@ -154,7 +145,6 @@ export default function DeveloperDashboardPage() {
         onDateFromChange={setDateFrom}
         onDateToChange={setDateTo}
         onApplyFilters={handleApplyFilters}
-        onResetFilters={handleResetFilters}
       />
 
       {/* Overview Cards Row */}
