@@ -44,8 +44,8 @@ export default function DeveloperDashboardPage() {
   });
 
   const fetchMetrics = useCallback(async (
-    from: string,
-    to: string,
+    startDate: string,
+    endDate: string,
     repoIds: number[]
   ) => {
     setLoading(true);
@@ -55,8 +55,8 @@ export default function DeveloperDashboardPage() {
 
       // Build query params
       const params = new URLSearchParams();
-      if (from) params.append('from', from);
-      if (to) params.append('to', to);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
       repoIds.forEach((id) => params.append('repositoryIds', id.toString()));
 
       const url = `${apiUrl}/api/v1/dashboard/developer/metrics?${params.toString()}`;
