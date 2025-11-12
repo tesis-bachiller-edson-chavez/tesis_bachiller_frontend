@@ -119,7 +119,7 @@ export default function DeveloperDashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-gray-500">
-              No hay datos disponibles. Realiza tu primer commit para ver métricas.
+              No hay datos disponibles. Verifica la configuracion de repositorios o despliega tu primer commit para ver métricas.
             </p>
           </CardContent>
         </Card>
