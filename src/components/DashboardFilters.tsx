@@ -38,14 +38,12 @@ export function DashboardFilters({
   onResetFilters,
 }: DashboardFiltersProps) {
   const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [commandKey, setCommandKey] = useState(0);
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    // Reset search and remount Command when closing to clear internal state
+    // Remount Command when closing to clear internal search state
     if (!newOpen) {
-      setSearchValue('');
       setCommandKey((prev) => prev + 1);
     }
   };
@@ -128,12 +126,8 @@ export function DashboardFilters({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0">
-              <Command key={commandKey} value={searchValue} onValueChange={setSearchValue}>
-                <CommandInput
-                  placeholder="Buscar repositorio..."
-                  value={searchValue}
-                  onValueChange={setSearchValue}
-                />
+              <Command key={commandKey}>
+                <CommandInput placeholder="Buscar repositorio..." />
                 <CommandList>
                   <CommandEmpty>No se encontraron repositorios.</CommandEmpty>
                   <CommandGroup>
