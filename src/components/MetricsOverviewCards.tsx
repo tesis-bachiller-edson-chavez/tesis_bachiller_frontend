@@ -34,7 +34,7 @@ export function MetricsOverviewCards({
       {/* Pull Requests */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-gray-600">Pull Requests</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-600">Pull Requests Desplegados</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold">{pullRequestStats.totalPullRequests}</p>
