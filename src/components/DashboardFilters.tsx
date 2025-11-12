@@ -38,6 +38,17 @@ export function DashboardFilters({
   onResetFilters,
 }: DashboardFiltersProps) {
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [commandKey, setCommandKey] = useState(0);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    // Reset search and remount Command when closing to clear internal state
+    if (!newOpen) {
+      setSearchValue('');
+      setCommandKey((prev) => prev + 1);
+    }
+  };
 
   const handleToggleRepository = (repoId: number) => {
     if (selectedRepositoryIds.includes(repoId)) {
@@ -104,7 +115,7 @@ export function DashboardFilters({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Repositorios
           </label>
-          <Popover open={open} onOpenChange={setOpen}>
+          <Popover open={open} onOpenChange={handleOpenChange}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -117,8 +128,12 @@ export function DashboardFilters({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0">
-              <Command>
-                <CommandInput placeholder="Buscar repositorio..." />
+              <Command key={commandKey} value={searchValue} onValueChange={setSearchValue}>
+                <CommandInput
+                  placeholder="Buscar repositorio..."
+                  value={searchValue}
+                  onValueChange={setSearchValue}
+                />
                 <CommandList>
                   <CommandEmpty>No se encontraron repositorios.</CommandEmpty>
                   <CommandGroup>
