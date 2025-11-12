@@ -32,6 +32,9 @@ export default function DeveloperDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Store all available repositories (fetched once, never filtered)
+  const [allRepositories, setAllRepositories] = useState<DeveloperMetricsResponse['repositories']>([]);
+
   // Filter states
   const defaultRange = getDefaultDateRange();
   const [dateFrom, setDateFrom] = useState(defaultRange.from);
@@ -71,6 +74,11 @@ export default function DeveloperDashboardPage() {
       const data: DeveloperMetricsResponse = await response.json();
       setMetrics(data);
 
+      // Store all repositories on first fetch (when no filters applied)
+      if (allRepositories.length === 0 && data.repositories.length > 0) {
+        setAllRepositories(data.repositories);
+      }
+
       // Initialize selected repos if not set
       if (selectedRepositoryIds.length === 0 && data.repositories.length > 0) {
         setSelectedRepositoryIds(data.repositories.map((r) => r.repositoryId));
@@ -80,7 +88,7 @@ export default function DeveloperDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedRepositoryIds.length]);
+  }, [selectedRepositoryIds.length, allRepositories.length]);
 
   // Initial fetch
   useEffect(() => {
@@ -100,8 +108,8 @@ export default function DeveloperDashboardPage() {
     const defaultRange = getDefaultDateRange();
     setDateFrom(defaultRange.from);
     setDateTo(defaultRange.to);
-    if (metrics) {
-      const allRepoIds = metrics.repositories.map((r) => r.repositoryId);
+    if (allRepositories.length > 0) {
+      const allRepoIds = allRepositories.map((r) => r.repositoryId);
       setSelectedRepositoryIds(allRepoIds);
     }
   };
@@ -138,7 +146,7 @@ export default function DeveloperDashboardPage() {
 
       {/* Filters */}
       <DashboardFilters
-        repositories={metrics.repositories}
+        repositories={allRepositories}
         selectedRepositoryIds={selectedRepositoryIds}
         onRepositoryIdsChange={setSelectedRepositoryIds}
         dateFrom={dateFrom}
