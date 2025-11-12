@@ -29,8 +29,12 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
   }
 
   // Format dates for display (YYYY-MM-DD → MM/DD)
+  // Parse date as local timezone to avoid UTC offset issues
   const formattedData = dailyMetrics.map((metric) => {
-    const date = new Date(metric.date);
+    // Parse YYYY-MM-DD as local date (not UTC)
+    const [year, month, day] = metric.date.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
+
     return {
       ...metric,
       dateFormatted: date.toLocaleDateString('es-ES', {

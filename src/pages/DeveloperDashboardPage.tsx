@@ -1,41 +1,110 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { MetricsOverviewCards } from '@/components/MetricsOverviewCards';
 import { DoraMetricsSection } from '@/components/DoraMetricsSection';
 import { DeveloperRepositoriesTable } from '@/components/DeveloperRepositoriesTable';
 import { TimeSeriesCharts } from '@/components/TimeSeriesCharts';
+import { DashboardFilters } from '@/components/DashboardFilters';
 import type { DeveloperMetricsResponse } from '@/types/dashboard.types';
+
+// Helper to get date in YYYY-MM-DD format
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Get default date range (last 90 days)
+const getDefaultDateRange = () => {
+  const today = new Date();
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(today.getDate() - 90);
+
+  return {
+    from: formatDate(ninetyDaysAgo),
+    to: formatDate(today),
+  };
+};
 
 export default function DeveloperDashboardPage() {
   const [metrics, setMetrics] = useState<DeveloperMetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${apiUrl}/api/v1/dashboard/developer/metrics`, {
-          credentials: 'include',
-        });
+  // Filter states
+  const defaultRange = getDefaultDateRange();
+  const [dateFrom, setDateFrom] = useState(defaultRange.from);
+  const [dateTo, setDateTo] = useState(defaultRange.to);
+  const [selectedRepositoryIds, setSelectedRepositoryIds] = useState<number[]>([]);
+  const [appliedFilters, setAppliedFilters] = useState({
+    dateFrom: defaultRange.from,
+    dateTo: defaultRange.to,
+    repositoryIds: [] as number[],
+  });
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
+  const fetchMetrics = useCallback(async (
+    from: string,
+    to: string,
+    repoIds: number[]
+  ) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
 
-        const data: DeveloperMetricsResponse = await response.json();
-        setMetrics(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
-      } finally {
-        setLoading(false);
+      // Build query params
+      const params = new URLSearchParams();
+      if (from) params.append('from', from);
+      if (to) params.append('to', to);
+      repoIds.forEach((id) => params.append('repositoryIds', id.toString()));
+
+      const url = `${apiUrl}/api/v1/dashboard/developer/metrics?${params.toString()}`;
+      const response = await fetch(url, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
-    };
 
-    fetchMetrics();
+      const data: DeveloperMetricsResponse = await response.json();
+      setMetrics(data);
+
+      // Initialize selected repos if not set
+      if (selectedRepositoryIds.length === 0 && data.repositories.length > 0) {
+        setSelectedRepositoryIds(data.repositories.map((r) => r.repositoryId));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedRepositoryIds.length]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchMetrics(appliedFilters.dateFrom, appliedFilters.dateTo, appliedFilters.repositoryIds);
   }, []);
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      dateFrom,
+      dateTo,
+      repositoryIds: selectedRepositoryIds,
+    });
+    fetchMetrics(dateFrom, dateTo, selectedRepositoryIds);
+  };
+
+  const handleResetFilters = () => {
+    const defaultRange = getDefaultDateRange();
+    setDateFrom(defaultRange.from);
+    setDateTo(defaultRange.to);
+    if (metrics) {
+      const allRepoIds = metrics.repositories.map((r) => r.repositoryId);
+      setSelectedRepositoryIds(allRepoIds);
+    }
+  };
 
   if (loading) {
     return <div className="p-6">Cargando métricas...</div>;
@@ -66,6 +135,19 @@ export default function DeveloperDashboardPage() {
         <h1 className="text-3xl font-bold">Dashboard de Desarrollador</h1>
         <p className="text-gray-600">@{metrics.developerUsername}</p>
       </div>
+
+      {/* Filters */}
+      <DashboardFilters
+        repositories={metrics.repositories}
+        selectedRepositoryIds={selectedRepositoryIds}
+        onRepositoryIdsChange={setSelectedRepositoryIds}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
+        onApplyFilters={handleApplyFilters}
+        onResetFilters={handleResetFilters}
+      />
 
       {/* Overview Cards Row */}
       <MetricsOverviewCards
