@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, Search } from 'lucide-react';
 import type { RepositoryStatsDto } from '@/types/dashboard.types';
 import { cn } from '@/lib/utils';
 
@@ -38,13 +30,13 @@ export function DashboardFilters({
   onResetFilters,
 }: DashboardFiltersProps) {
   const [open, setOpen] = useState(false);
-  const [commandKey, setCommandKey] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    // Remount Command when closing to clear internal search state
+    // Reset search when closing
     if (!newOpen) {
-      setCommandKey((prev) => prev + 1);
+      setSearchQuery('');
     }
   };
 
@@ -75,6 +67,11 @@ export function DashboardFilters({
     }
     return `${selectedRepositoryIds.length} repositorios seleccionados`;
   };
+
+  // Filter repositories based on search query
+  const filteredRepositories = repositories.filter((repo) =>
+    repo.repositoryName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Card>
@@ -126,51 +123,74 @@ export function DashboardFilters({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0">
-              <Command key={commandKey}>
-                <CommandInput placeholder="Buscar repositorio..." />
-                <CommandList>
-                  <CommandEmpty>No se encontraron repositorios.</CommandEmpty>
-                  <CommandGroup>
-                    {/* Select/Deselect All Actions */}
-                    <div className="flex gap-2 p-2 border-b">
-                      <button
-                        type="button"
-                        onClick={handleSelectAll}
-                        className="text-xs text-blue-600 hover:underline flex-1 text-left"
-                        disabled={allSelected}
-                      >
-                        Seleccionar todos
-                      </button>
-                      <span className="text-gray-400">|</span>
-                      <button
-                        type="button"
-                        onClick={handleDeselectAll}
-                        className="text-xs text-blue-600 hover:underline flex-1 text-right"
-                        disabled={selectedRepositoryIds.length === 0}
-                      >
-                        Deseleccionar todos
-                      </button>
+              <div className="flex flex-col">
+                {/* Search Input */}
+                <div className="flex items-center border-b px-3 py-2">
+                  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  <input
+                    type="text"
+                    placeholder="Buscar repositorio..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-500"
+                  />
+                </div>
+
+                {/* Select/Deselect All Actions */}
+                <div className="flex gap-2 p-2 border-b bg-gray-50">
+                  <button
+                    type="button"
+                    onClick={handleSelectAll}
+                    className="text-xs text-blue-600 hover:underline flex-1 text-left"
+                    disabled={allSelected}
+                  >
+                    Seleccionar todos
+                  </button>
+                  <span className="text-gray-400">|</span>
+                  <button
+                    type="button"
+                    onClick={handleDeselectAll}
+                    className="text-xs text-blue-600 hover:underline flex-1 text-right"
+                    disabled={selectedRepositoryIds.length === 0}
+                  >
+                    Deseleccionar todos
+                  </button>
+                </div>
+
+                {/* Repository List */}
+                <div className="max-h-[300px] overflow-y-auto p-1">
+                  {filteredRepositories.length === 0 ? (
+                    <div className="py-6 text-center text-sm text-gray-500">
+                      No se encontraron repositorios.
                     </div>
-                    {repositories.map((repo) => (
-                      <CommandItem
+                  ) : (
+                    filteredRepositories.map((repo) => (
+                      <label
                         key={repo.repositoryId}
-                        value={repo.repositoryName}
-                        onSelect={() => handleToggleRepository(repo.repositoryId)}
+                        className="flex items-center gap-2 rounded-sm px-2 py-2 text-sm cursor-pointer hover:bg-gray-100"
                       >
-                        <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            selectedRepositoryIds.includes(repo.repositoryId)
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                          )}
+                        <div className="flex items-center justify-center w-4 h-4">
+                          <Check
+                            className={cn(
+                              'h-4 w-4 text-blue-600',
+                              selectedRepositoryIds.includes(repo.repositoryId)
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                            )}
+                          />
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={selectedRepositoryIds.includes(repo.repositoryId)}
+                          onChange={() => handleToggleRepository(repo.repositoryId)}
+                          className="sr-only"
                         />
-                        {repo.repositoryName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
+                        <span>{repo.repositoryName}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
