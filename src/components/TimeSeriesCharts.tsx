@@ -80,7 +80,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
       return {
         date,
         dateFormatted,
-        averageLeadTimeHours: null,
+        averageLeadTimeHours: 0,
         deploymentCount: 0,
         commitCount: 0,
         failedDeploymentCount: 0,
@@ -110,7 +110,7 @@ export function TimeSeriesCharts({ dailyMetrics }: TimeSeriesChartsProps) {
                 stroke="#3b82f6"
                 name="Lead Time (hrs)"
                 strokeWidth={2}
-                connectNulls={false}
+                connectNulls={true}
               />
             </LineChart>
           </ResponsiveContainer>
