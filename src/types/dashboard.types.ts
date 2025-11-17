@@ -107,3 +107,32 @@ export interface TeamDailyMetricDto {
   averageMTTRHours: number | null;
   resolvedIncidentCount: number;
 }
+
+/**
+ * Engineering Manager Dashboard Types
+ * Based on OpenAPI schema: EngineeringManagerMetricsResponse
+ */
+
+export interface EngineeringManagerMetricsResponse {
+  engineeringManagerUsername: string;
+  totalTeams: number;
+  totalDevelopers: number;
+  teams: TeamMetricsDto[];
+  repositories: RepositoryStatsDto[];
+  aggregatedCommitStats: CommitStatsDto;
+  aggregatedPullRequestStats: PullRequestStatsDto;
+  aggregatedDoraMetrics: TeamDoraMetricsDto;
+}
+
+export interface TeamMetricsDto {
+  teamId: number;
+  teamName: string;
+  memberCount: number;
+  totalCommits: number;
+  totalPullRequests: number;
+  repositoryCount: number;
+  commitStats: CommitStatsDto;
+  pullRequestStats: PullRequestStatsDto;
+  doraMetrics: TeamDoraMetricsDto;
+  repositories: RepositoryStatsDto[];
+}
