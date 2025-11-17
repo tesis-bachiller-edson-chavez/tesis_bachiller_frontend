@@ -1,13 +1,15 @@
 import { useAuth } from '@/layouts/AuthenticatedLayout';
 import DeveloperDashboardPage from './DeveloperDashboardPage';
 import TechLeadDashboardPage from './TechLeadDashboardPage';
+import EngineeringManagerDashboardPage from './EngineeringManagerDashboardPage';
 
 /**
  * Dashboard Router - Selecciona el dashboard correcto según los roles del usuario
  *
- * Lógica de selección:
- * - Si tiene TECH_LEAD (con o sin DEVELOPER) → TechLeadDashboardPage
- * - Si solo tiene DEVELOPER → DeveloperDashboardPage
+ * Lógica de selección (por orden de prioridad, mayor nivel de acceso primero):
+ * - Si tiene ENGINEERING_MANAGER → EngineeringManagerDashboardPage
+ * - Si tiene TECH_LEAD → TechLeadDashboardPage
+ * - Si tiene DEVELOPER → DeveloperDashboardPage
  * - Siempre se muestra el dashboard de mayor nivel de acceso disponible
  */
 export default function DashboardRouter() {
@@ -22,17 +24,26 @@ export default function DashboardRouter() {
   console.log('DashboardRouter - Roles:', user.roles);
   console.log('DashboardRouter - Tipo de roles:', typeof user.roles, Array.isArray(user.roles));
 
-  // Verificar si tiene rol TECH_LEAD
+  // Verificar roles en orden de prioridad (mayor a menor)
+  const isEngineeringManager = user.roles.includes('ENGINEERING_MANAGER');
   const isTechLead = user.roles.includes('TECH_LEAD');
+
+  console.log('DashboardRouter - isEngineeringManager:', isEngineeringManager);
   console.log('DashboardRouter - isTechLead:', isTechLead);
 
-  // Si tiene TECH_LEAD, mostrar dashboard de tech lead (mayor nivel de acceso)
+  // Prioridad 1: Engineering Manager (mayor nivel de acceso)
+  if (isEngineeringManager) {
+    console.log('DashboardRouter - Mostrando EngineeringManagerDashboardPage');
+    return <EngineeringManagerDashboardPage />;
+  }
+
+  // Prioridad 2: Tech Lead
   if (isTechLead) {
     console.log('DashboardRouter - Mostrando TechLeadDashboardPage');
     return <TechLeadDashboardPage />;
   }
 
-  // Por defecto, mostrar dashboard de developer
+  // Prioridad 3 (por defecto): Developer
   console.log('DashboardRouter - Mostrando DeveloperDashboardPage');
   return <DeveloperDashboardPage />;
 }
