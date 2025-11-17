@@ -11,6 +11,7 @@ import {
 import type { TeamMemberDto, AvailableUserDto, AssignRolesRequest } from '@/types/user.types';
 import { UserPlus, X, Crown } from 'lucide-react';
 import { SelectionModal } from '@/components/SelectionModal';
+import { useAuth } from '@/layouts/AuthenticatedLayout';
 
 interface TeamMembersTabProps {
   teamId: number;
@@ -25,6 +26,7 @@ export const TeamMembersTab = ({
   canManage,
   onMembersChange,
 }: TeamMembersTabProps) => {
+  const { user: currentUser, refreshUser } = useAuth();
   const [allUsers, setAllUsers] = useState<AvailableUserDto[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -142,6 +144,12 @@ export const TeamMembersTab = ({
             window.alert(
               `⚠️ @${user.githubUsername} fue asignado al equipo pero no se pudo asignar rol TECH_LEAD`
             );
+          } else {
+            // Si el usuario modificado es el usuario actual, refrescar contexto
+            if (currentUser && currentUser.id === user.id) {
+              console.log('Refrescando contexto de usuario después de asignar rol TECH_LEAD');
+              await refreshUser();
+            }
           }
         }
       }
@@ -216,6 +224,12 @@ export const TeamMembersTab = ({
           throw new Error('No tienes permisos para modificar roles');
         }
         throw new Error('Error al actualizar rol');
+      }
+
+      // Si el usuario modificado es el usuario actual, refrescar contexto
+      if (currentUser && currentUser.id === member.userId) {
+        console.log('Refrescando contexto de usuario después de modificar rol TECH_LEAD');
+        await refreshUser();
       }
 
       window.alert('✅ Rol actualizado exitosamente');

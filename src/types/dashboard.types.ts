@@ -51,3 +51,59 @@ export interface DailyMetricDto {
   commitCount: number;
   failedDeploymentCount: number;
 }
+
+/**
+ * Tech Lead Dashboard Types
+ * Based on OpenAPI schema: TechLeadMetricsResponse
+ */
+
+export interface TechLeadMetricsResponse {
+  techLeadUsername: string;
+  teamId: number;
+  teamName: string;
+  teamMembers: TeamMemberStatsDto[];
+  repositories: RepositoryStatsDto[];
+  commitStats: CommitStatsDto;
+  pullRequestStats: PullRequestStatsDto;
+  doraMetrics: TeamDoraMetricsDto;
+}
+
+export interface TeamMemberStatsDto {
+  userId: number;
+  githubUsername: string;
+  name: string;
+  email: string;
+  totalCommits: number;
+  totalPullRequests: number;
+  mergedPullRequests: number;
+  averageLeadTimeHours: number | null;
+  deploymentCount: number;
+}
+
+export interface TeamDoraMetricsDto {
+  // Aggregated values
+  averageLeadTimeHours: number | null;
+  minLeadTimeHours: number | null;
+  maxLeadTimeHours: number | null;
+  totalDeploymentCount: number;
+  deployedCommitCount: number;
+  changeFailureRate: number | null; // 0-100 percentage
+  failedDeploymentCount: number;
+  // MTTR metrics (new for Tech Lead)
+  averageMTTRHours: number | null;
+  minMTTRHours: number | null;
+  maxMTTRHours: number | null;
+  totalResolvedIncidents: number;
+  // Time series
+  dailyMetrics: TeamDailyMetricDto[];
+}
+
+export interface TeamDailyMetricDto {
+  date: string; // YYYY-MM-DD format
+  averageLeadTimeHours: number;
+  deploymentCount: number;
+  commitCount: number;
+  failedDeploymentCount: number;
+  averageMTTRHours: number | null;
+  resolvedIncidentCount: number;
+}
