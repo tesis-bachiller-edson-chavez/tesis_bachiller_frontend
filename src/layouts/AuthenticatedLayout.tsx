@@ -12,7 +12,15 @@ interface User {
 }
 
 // 1. Crear el Contexto de Autenticación
-const AuthContext = createContext<{ user: User | null }>({ user: null });
+interface AuthContextType {
+  user: User | null;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  refreshUser: async () => {},
+});
 
 export const AuthenticatedLayout = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -20,24 +28,32 @@ export const AuthenticatedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${apiUrl}/api/v1/users/me`, { credentials: 'include' });
-        if (response.ok) {
-          const userData: User = await response.json();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
-      } finally {
-        setIsLoading(false);
+  // Función para obtener datos del usuario
+  const fetchUser = async () => {
+    try {
+      const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/v1/users/me`, { credentials: 'include' });
+      if (response.ok) {
+        const userData: User = await response.json();
+        console.log('AuthenticatedLayout - Usuario obtenido:', userData);
+        console.log('AuthenticatedLayout - Roles:', userData.roles);
+        setUser(userData);
+      } else {
+        setUser(null);
       }
-    };
+    } catch (error) {
+      console.error('Error al obtener datos del usuario:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  // Función pública para refrescar el usuario
+  const refreshUser = async () => {
+    await fetchUser();
+  };
+
+  useEffect(() => {
     fetchUser();
   }, []);
 
@@ -72,7 +88,7 @@ export const AuthenticatedLayout = () => {
   const isAdmin = user?.roles.includes('ADMIN') || false;
 
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user, refreshUser }}>
       <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
         {/* Barra de navegación lateral fija */}
         {!isLoading && user && <SideNav isAdmin={isAdmin} />}

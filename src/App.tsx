@@ -6,7 +6,7 @@ import { UserManagementPage } from './pages/UserManagementPage';
 import { RepositoriesPage } from './pages/RepositoriesPage';
 import { TeamsPage } from './pages/TeamsPage';
 import { TeamDetailPage } from './pages/TeamDetailPage';
-import DeveloperDashboardPage from './pages/DeveloperDashboardPage';
+import DashboardRouter from './pages/DashboardRouter';
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
       {/* Rutas protegidas */}
       <Route element={<AuthenticatedLayout />}>
         <Route path="/home" element={<HomePage />} />
-        <Route path="/dashboard" element={<DeveloperDashboardPage />} />
+        <Route path="/dashboard" element={<DashboardRouter />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/repositories" element={<RepositoriesPage />} />
         <Route path="/teams" element={<TeamsPage />} />
