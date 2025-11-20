@@ -48,9 +48,11 @@ export const SideNav = ({ isAdmin }: SideNavProps) => {
         <NavLink to="/dashboard" icon={BarChart3}>
           Dashboard
         </NavLink>
-        <NavLink to="/repositories" icon={FolderGit2}>
-          Repositorios
-        </NavLink>
+        {isAdmin && (
+          <NavLink to="/repositories" icon={FolderGit2}>
+            Repositorios
+          </NavLink>
+        )}
         {canViewTeams && (
           <NavLink to="/teams" icon={UsersRound}>
             Equipos
