@@ -16,14 +16,14 @@ const formatDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-// Get default date range (last 90 days)
+// Get default date range (last 30 days)
 const getDefaultDateRange = () => {
   const today = new Date();
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(today.getDate() - 90);
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setDate(today.getDate() - 30);
 
   return {
-    from: formatDate(ninetyDaysAgo),
+    from: formatDate(oneMonthAgo),
     to: formatDate(today),
   };
 };
@@ -167,10 +167,10 @@ export default function EngineeringManagerDashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Dashboard de Engineering Manager</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold">Dashboard de Engineering Manager</h1>
         <p className="text-gray-600">@{metrics.engineeringManagerUsername} - {metrics.totalTeams} equipo(s), {metrics.totalDevelopers} desarrollador(es)</p>
       </div>
 
