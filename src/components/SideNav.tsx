@@ -33,11 +33,11 @@ export const SideNav = ({ isAdmin }: SideNavProps) => {
     user?.roles.includes('TECH_LEAD');
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r bg-gray-50 p-4 flex flex-col">
+    <aside className="w-52 lg:w-64 flex-shrink-0 border-r bg-gray-50 p-3 lg:p-4 flex flex-col">
       {/* Título de la aplicación en la parte superior del SideNav */}
-      <div className="mb-8 flex items-center space-x-2 px-2">
-        <GitMerge className="h-8 w-8 text-primary" />
-        <h1 className="text-lg font-bold">Plataforma de Métricas DORA</h1>
+      <div className="mb-6 lg:mb-8 flex items-center space-x-2 px-1 lg:px-2">
+        <GitMerge className="h-6 w-6 lg:h-8 lg:w-8 text-primary flex-shrink-0" />
+        <h1 className="text-sm lg:text-lg font-bold leading-tight">Plataforma de Métricas DORA</h1>
       </div>
 
       {/* Navegación */}

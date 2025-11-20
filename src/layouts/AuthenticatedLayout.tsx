@@ -105,7 +105,7 @@ export const AuthenticatedLayout = () => {
           </header>
 
           {/* Contenido de la página con scroll si es necesario */}
-          <main className="flex-grow p-6 overflow-auto">
+          <main className="flex-grow p-4 lg:p-6 overflow-auto">
             {isLoading ? <p>Cargando...</p> : <Outlet />}
           </main>
         </div>
