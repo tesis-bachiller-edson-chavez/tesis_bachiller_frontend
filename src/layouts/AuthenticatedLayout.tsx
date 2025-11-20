@@ -57,14 +57,14 @@ export const AuthenticatedLayout = () => {
     fetchUser();
   }, []);
 
-  // Redirigir a /home después del login inicial
+  // Redirigir a /dashboard después del login inicial
   useEffect(() => {
     if (!isLoading && user && !sessionStorage.getItem('initialRedirectDone')) {
       // Marcar que ya hicimos el redirect inicial
       sessionStorage.setItem('initialRedirectDone', 'true');
-      // Solo redirigir si no estamos ya en /home
-      if (location.pathname !== '/home') {
-        navigate('/home', { replace: true });
+      // Solo redirigir si no estamos ya en /dashboard
+      if (location.pathname !== '/dashboard') {
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [isLoading, user, location.pathname, navigate]);
