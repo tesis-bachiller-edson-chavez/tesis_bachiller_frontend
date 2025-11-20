@@ -199,8 +199,8 @@ export const RepositoriesPage = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
-        <div className="flex justify-between items-center mb-4">
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Gestión de Repositorios</h1>
           {isAdmin && (
             <Button onClick={handleSync} disabled={syncing}>
