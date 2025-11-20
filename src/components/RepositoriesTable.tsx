@@ -71,16 +71,16 @@ export const RepositoriesTable = ({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Repositorio</TableHead>
-          <TableHead>URL Completa</TableHead>
-          <TableHead>Servicio de Datadog</TableHead>
-          <TableHead>Workflow de Deployment</TableHead>
-          {isAdmin && <TableHead>Acciones</TableHead>}
-        </TableRow>
-      </TableHeader>
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Repositorio</TableHead>
+            <TableHead>Servicio Datadog</TableHead>
+            <TableHead>Workflow</TableHead>
+            {isAdmin && <TableHead>Acciones</TableHead>}
+          </TableRow>
+        </TableHeader>
       <TableBody>
         {repositories.map((repo) => {
           const isEditing = editingId === repo.id;
@@ -98,13 +98,6 @@ export const RepositoriesTable = ({
                   {repo.owner}/{repo.repoName}
                   <ExternalLink className="h-3 w-3" />
                 </a>
-              </TableCell>
-
-              {/* URL Completa */}
-              <TableCell>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {repo.repositoryUrl}
-                </span>
               </TableCell>
 
               {/* Servicio de Datadog */}
@@ -192,6 +185,7 @@ export const RepositoriesTable = ({
           );
         })}
       </TableBody>
-    </Table>
+      </Table>
+    </div>
   );
 };
