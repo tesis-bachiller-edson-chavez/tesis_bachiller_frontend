@@ -175,16 +175,16 @@ export const TeamRepositoriesTab = ({
           {canManage && ' Asigna repositorios para comenzar.'}
         </p>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Repositorio</TableHead>
-              <TableHead>URL</TableHead>
-              <TableHead>Servicio Datadog</TableHead>
-              <TableHead>Workflow Deployment</TableHead>
-              {canManage && <TableHead>Acciones</TableHead>}
-            </TableRow>
-          </TableHeader>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Repositorio</TableHead>
+                <TableHead>Servicio Datadog</TableHead>
+                <TableHead>Workflow</TableHead>
+                {canManage && <TableHead>Acciones</TableHead>}
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {repositories.map((repo) => (
               <TableRow key={repo.id}>
@@ -198,11 +198,6 @@ export const TeamRepositoriesTab = ({
                     {repo.owner}/{repo.repoName}
                     <ExternalLink className="h-3 w-3" />
                   </a>
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {repo.repositoryUrl}
-                  </span>
                 </TableCell>
                 <TableCell>
                   {repo.datadogServiceName ? (
@@ -232,7 +227,8 @@ export const TeamRepositoriesTab = ({
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       )}
 
       {/* Selection Modal */}
