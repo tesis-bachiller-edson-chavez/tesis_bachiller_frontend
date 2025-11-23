@@ -52,8 +52,10 @@ function getChangeFailureRateLevel(changeFailureRate: number | null): DoraLevel 
   return 'Low';
 }
 
-function getMTTRLevel(averageMTTRHours: number | null): DoraLevel {
-  if (averageMTTRHours === null) return 'Low';
+function getMTTRLevel(averageMTTRHours: number | null, totalResolvedIncidents: number): DoraLevel | null {
+  // Si no hay incidentes resueltos, no hay datos de MTTR
+  if (totalResolvedIncidents === 0) return null;
+  if (averageMTTRHours === null) return null;
   if (averageMTTRHours < 1) return 'Elite'; // < 1 hour
   if (averageMTTRHours < 24) return 'High'; // < 1 day
   if (averageMTTRHours < 168) return 'Medium'; // < 1 week
@@ -67,7 +69,7 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
     doraMetrics.dailyMetrics.length
   );
   const cfrLevel = getChangeFailureRateLevel(doraMetrics.changeFailureRate);
-  const mttrLevel = getMTTRLevel(doraMetrics.averageMTTRHours);
+  const mttrLevel = getMTTRLevel(doraMetrics.averageMTTRHours, doraMetrics.totalResolvedIncidents);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4">
@@ -83,9 +85,7 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
           </div>
           <div>
             <p className="text-2xl font-bold">
-              {doraMetrics.averageLeadTimeHours !== null
-                ? `${doraMetrics.averageLeadTimeHours.toFixed(1)} hrs`
-                : 'N/A'}
+              {(doraMetrics.averageLeadTimeHours ?? 0).toFixed(1)} hrs
             </p>
             <p className="text-xs text-gray-500 mt-1">Promedio</p>
           </div>
@@ -93,17 +93,13 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
             <div className="flex justify-between">
               <span className="text-gray-600">Min:</span>
               <span className="font-medium">
-                {doraMetrics.minLeadTimeHours !== null
-                  ? `${doraMetrics.minLeadTimeHours.toFixed(1)} hrs`
-                  : 'N/A'}
+                {(doraMetrics.minLeadTimeHours ?? 0).toFixed(1)} hrs
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Max:</span>
               <span className="font-medium">
-                {doraMetrics.maxLeadTimeHours !== null
-                  ? `${doraMetrics.maxLeadTimeHours.toFixed(1)} hrs`
-                  : 'N/A'}
+                {(doraMetrics.maxLeadTimeHours ?? 0).toFixed(1)} hrs
               </span>
             </div>
           </div>
@@ -156,9 +152,7 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
           </div>
           <div>
             <p className="text-2xl font-bold">
-              {doraMetrics.changeFailureRate !== null
-                ? `${doraMetrics.changeFailureRate.toFixed(1)}%`
-                : 'N/A'}
+              {(doraMetrics.changeFailureRate ?? 0).toFixed(1)}%
             </p>
             <p className="text-xs text-gray-500 mt-1">Tasa de Fallo</p>
           </div>
@@ -177,7 +171,7 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
         </CardContent>
       </Card>
 
-      {/* Mean Time to Recover (MTTR) - NEW */}
+      {/* Mean Time to Recover (MTTR) */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Mean Time to Recover</CardTitle>
@@ -185,33 +179,44 @@ export function DoraMetricsSectionTechLead({ doraMetrics }: DoraMetricsSectionTe
         <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Clasificación:</span>
-            <DoraPerformanceBadge level={mttrLevel} />
+            {mttrLevel ? (
+              <DoraPerformanceBadge level={mttrLevel} />
+            ) : (
+              <span className="text-xs text-gray-400 italic">Sin datos</span>
+            )}
           </div>
           <div>
-            <p className="text-2xl font-bold">
-              {doraMetrics.averageMTTRHours !== null
-                ? `${doraMetrics.averageMTTRHours.toFixed(1)} hrs`
-                : 'N/A'}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">Promedio</p>
+            {doraMetrics.totalResolvedIncidents > 0 ? (
+              <>
+                <p className="text-2xl font-bold">
+                  {(doraMetrics.averageMTTRHours ?? 0).toFixed(1)} hrs
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Promedio</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-gray-400">—</p>
+                <p className="text-xs text-gray-500 mt-1">Sin incidentes resueltos</p>
+              </>
+            )}
           </div>
-          <div className="text-sm space-y-1">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Min:</span>
-              <span className="font-medium">
-                {doraMetrics.minMTTRHours !== null
-                  ? `${doraMetrics.minMTTRHours.toFixed(1)} hrs`
-                  : 'N/A'}
-              </span>
+          {doraMetrics.totalResolvedIncidents > 0 && (
+            <div className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Min:</span>
+                <span className="font-medium">
+                  {(doraMetrics.minMTTRHours ?? 0).toFixed(1)} hrs
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Max:</span>
+                <span className="font-medium">
+                  {(doraMetrics.maxMTTRHours ?? 0).toFixed(1)} hrs
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Max:</span>
-              <span className="font-medium">
-                {doraMetrics.maxMTTRHours !== null
-                  ? `${doraMetrics.maxMTTRHours.toFixed(1)} hrs`
-                  : 'N/A'}
-              </span>
-            </div>
+          )}
+          <div className="text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Incidentes:</span>
               <span className="font-medium">{doraMetrics.totalResolvedIncidents}</span>

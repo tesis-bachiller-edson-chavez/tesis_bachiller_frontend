@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { UsersTable } from "@/components/UsersTable";
+import { useAuth } from "@/layouts/AuthenticatedLayout";
 import type { AssignRolesRequest } from "@/types/user.types";
 
 // Interfaz basada en UserSummaryDto del openapi.json
@@ -13,6 +14,7 @@ interface User {
 }
 
 export const UserManagementPage = () => {
+  const { refreshUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +62,9 @@ export const UserManagementPage = () => {
         throw new Error('Error al actualizar roles');
       }
 
-      // Refrescar lista de usuarios
+      // Refrescar lista de usuarios y contexto del usuario actual
       await fetchUsers();
+      await refreshUser();
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';

@@ -54,6 +54,9 @@ export interface RepositoryDto {
   /** Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null) */
   deploymentWorkflowFileName: string | null;
 
+  /** Nombre del ambiente de producción para filtrar deployments */
+  productionEnvironmentName: string | null;
+
   /** Propietario del repositorio extraído de la URL */
   owner: string;
 
@@ -86,6 +89,9 @@ export interface UpdateRepositoryRequest {
 
   /** Nombre del archivo de workflow de deployment de GitHub Actions (puede ser null) */
   deploymentWorkflowFileName: string | null;
+
+  /** Nombre del ambiente de producción para filtrar deployments (por defecto 'prod') */
+  productionEnvironmentName: string | null;
 }
 
 /**

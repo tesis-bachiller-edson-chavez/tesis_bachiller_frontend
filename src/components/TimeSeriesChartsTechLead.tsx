@@ -15,19 +15,11 @@ import type { TeamDailyMetricDto } from '@/types/dashboard.types';
 
 interface TimeSeriesChartsTechLeadProps {
   dailyMetrics: TeamDailyMetricDto[];
+  dateFrom?: string;
+  dateTo?: string;
 }
 
-export function TimeSeriesChartsTechLead({ dailyMetrics }: TimeSeriesChartsTechLeadProps) {
-  if (dailyMetrics.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-gray-500">No hay datos de series de tiempo disponibles.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+export function TimeSeriesChartsTechLead({ dailyMetrics, dateFrom, dateTo }: TimeSeriesChartsTechLeadProps) {
   // Helper to get all dates in range
   const getAllDatesInRange = (startDate: string, endDate: string): string[] => {
     const dates: string[] = [];
@@ -48,10 +40,28 @@ export function TimeSeriesChartsTechLead({ dailyMetrics }: TimeSeriesChartsTechL
     return dates;
   };
 
-  // Get date range
-  const sortedMetrics = [...dailyMetrics].sort((a, b) => a.date.localeCompare(b.date));
-  const minDate = sortedMetrics[0].date;
-  const maxDate = sortedMetrics[sortedMetrics.length - 1].date;
+  // Get date range - use filter dates if provided, otherwise use data range
+  let minDate: string;
+  let maxDate: string;
+
+  if (dateFrom && dateTo) {
+    minDate = dateFrom;
+    maxDate = dateTo;
+  } else if (dailyMetrics.length > 0) {
+    const sortedMetrics = [...dailyMetrics].sort((a, b) => a.date.localeCompare(b.date));
+    minDate = sortedMetrics[0].date;
+    maxDate = sortedMetrics[sortedMetrics.length - 1].date;
+  } else {
+    // No data and no filter - show empty state
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-gray-500">No hay datos de series de tiempo disponibles.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const allDates = getAllDatesInRange(minDate, maxDate);
 
   // Create a map of existing metrics

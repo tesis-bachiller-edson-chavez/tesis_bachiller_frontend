@@ -118,7 +118,6 @@ export const TeamRepositoriesTab = ({
         }
       }
 
-      window.alert('✅ Repositorios asignados exitosamente');
       onRepositoriesChange();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';

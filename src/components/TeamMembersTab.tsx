@@ -91,17 +91,12 @@ export const TeamMembersTab = ({
 
     const selectedUsers = allUsers.filter((u) => selectedUserIds.has(u.id));
 
-    // Ask if users should be tech leads
-    const makeTechLeads = window.confirm(
-      `¿Desea asignar a los ${selectedUsers.length} usuario(s) seleccionado(s) como Tech Lead?\n\nSi selecciona "Cancelar", se asignarán solo como Developer.`
-    );
-
     setShowModal(false);
 
     try {
       const apiUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL;
 
-      // Step 1: Assign each user to the team
+      // Assign each user to the team
       for (const user of selectedUsers) {
         const response = await fetch(`${apiUrl}/api/v1/teams/${teamId}/members`, {
           method: 'POST',
@@ -121,40 +116,8 @@ export const TeamMembersTab = ({
           }
           throw new Error(`Error al asignar a @${user.githubUsername}`);
         }
-
-        // Step 2: If should be tech lead, assign TECH_LEAD role
-        if (makeTechLeads) {
-          // Get current roles and add TECH_LEAD
-          const newRoles = user.roles.includes('TECH_LEAD')
-            ? user.roles
-            : [...user.roles, 'TECH_LEAD'];
-
-          const rolesRequest: AssignRolesRequest = { roles: newRoles };
-
-          const rolesResponse = await fetch(`${apiUrl}/api/v1/users/${user.id}/roles`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(rolesRequest),
-          });
-
-          if (!rolesResponse.ok) {
-            window.alert(
-              `⚠️ @${user.githubUsername} fue asignado al equipo pero no se pudo asignar rol TECH_LEAD`
-            );
-          } else {
-            // Si el usuario modificado es el usuario actual, refrescar contexto
-            if (currentUser && currentUser.id === user.id) {
-              console.log('Refrescando contexto de usuario después de asignar rol TECH_LEAD');
-              await refreshUser();
-            }
-          }
-        }
       }
 
-      window.alert('✅ Usuarios asignados exitosamente');
       onMembersChange();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -304,6 +267,7 @@ export const TeamMembersTab = ({
                         size="sm"
                         variant="outline"
                         onClick={() => handleToggleTechLead(member)}
+                        title="Habilitar/deshabilitar Tech Lead"
                       >
                         <Crown className="h-4 w-4" />
                       </Button>

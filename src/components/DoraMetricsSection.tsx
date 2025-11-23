@@ -74,9 +74,7 @@ export function DoraMetricsSection({ doraMetrics }: DoraMetricsSectionProps) {
           </div>
           <div>
             <p className="text-2xl font-bold">
-              {doraMetrics.averageLeadTimeHours !== null
-                ? `${doraMetrics.averageLeadTimeHours.toFixed(1)} hrs`
-                : 'N/A'}
+              {(doraMetrics.averageLeadTimeHours ?? 0).toFixed(1)} hrs
             </p>
             <p className="text-xs text-gray-500 mt-1">Promedio</p>
           </div>
@@ -84,17 +82,13 @@ export function DoraMetricsSection({ doraMetrics }: DoraMetricsSectionProps) {
             <div className="flex justify-between">
               <span className="text-gray-600">Min:</span>
               <span className="font-medium">
-                {doraMetrics.minLeadTimeHours !== null
-                  ? `${doraMetrics.minLeadTimeHours.toFixed(1)} hrs`
-                  : 'N/A'}
+                {(doraMetrics.minLeadTimeHours ?? 0).toFixed(1)} hrs
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Max:</span>
               <span className="font-medium">
-                {doraMetrics.maxLeadTimeHours !== null
-                  ? `${doraMetrics.maxLeadTimeHours.toFixed(1)} hrs`
-                  : 'N/A'}
+                {(doraMetrics.maxLeadTimeHours ?? 0).toFixed(1)} hrs
               </span>
             </div>
           </div>
@@ -147,9 +141,7 @@ export function DoraMetricsSection({ doraMetrics }: DoraMetricsSectionProps) {
           </div>
           <div>
             <p className="text-2xl font-bold">
-              {doraMetrics.changeFailureRate !== null
-                ? `${doraMetrics.changeFailureRate.toFixed(1)}%`
-                : 'N/A'}
+              {(doraMetrics.changeFailureRate ?? 0).toFixed(1)}%
             </p>
             <p className="text-xs text-gray-500 mt-1">Tasa de Fallo</p>
           </div>

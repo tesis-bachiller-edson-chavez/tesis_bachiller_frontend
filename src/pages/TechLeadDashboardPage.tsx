@@ -125,7 +125,7 @@ export default function TechLeadDashboardPage() {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
 
-  if (!metrics || metrics.commitStats.totalCommits === 0) {
+  if (!metrics) {
     return (
       <div className="p-6">
         <Card>
@@ -173,7 +173,11 @@ export default function TechLeadDashboardPage() {
       <DoraMetricsSectionTechLead doraMetrics={metrics.doraMetrics} />
 
       {/* Time Series Charts (with MTTR) */}
-      <TimeSeriesChartsTechLead dailyMetrics={metrics.doraMetrics.dailyMetrics} />
+      <TimeSeriesChartsTechLead
+        dailyMetrics={metrics.doraMetrics.dailyMetrics}
+        dateFrom={appliedFilters.dateFrom}
+        dateTo={appliedFilters.dateTo}
+      />
 
       {/* Repositories Table */}
       <DeveloperRepositoriesTable repositories={metrics.repositories} />

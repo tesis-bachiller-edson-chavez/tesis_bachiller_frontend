@@ -53,19 +53,13 @@ export function MetricsOverviewCards({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {doraMetrics.averageLeadTimeHours !== null ? (
-            <>
-              <p className="text-3xl font-bold">
-                {doraMetrics.averageLeadTimeHours.toFixed(1)} hrs
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Min: {doraMetrics.minLeadTimeHours?.toFixed(1) ?? 'N/A'} | Max:{' '}
-                {doraMetrics.maxLeadTimeHours?.toFixed(1) ?? 'N/A'}
-              </p>
-            </>
-          ) : (
-            <p className="text-3xl font-bold text-gray-400">N/A</p>
-          )}
+          <p className="text-3xl font-bold">
+            {(doraMetrics.averageLeadTimeHours ?? 0).toFixed(1)} hrs
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Min: {(doraMetrics.minLeadTimeHours ?? 0).toFixed(1)} | Max:{' '}
+            {(doraMetrics.maxLeadTimeHours ?? 0).toFixed(1)}
+          </p>
         </CardContent>
       </Card>
 

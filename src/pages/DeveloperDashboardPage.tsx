@@ -113,7 +113,7 @@ export default function DeveloperDashboardPage() {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
 
-  if (!metrics || metrics.commitStats.totalCommits === 0) {
+  if (!metrics) {
     return (
       <div className="p-6">
         <Card>
@@ -158,7 +158,11 @@ export default function DeveloperDashboardPage() {
       <DoraMetricsSection doraMetrics={metrics.doraMetrics} />
 
       {/* Time Series Charts */}
-      <TimeSeriesCharts dailyMetrics={metrics.doraMetrics.dailyMetrics} />
+      <TimeSeriesCharts
+        dailyMetrics={metrics.doraMetrics.dailyMetrics}
+        dateFrom={appliedFilters.dateFrom}
+        dateTo={appliedFilters.dateTo}
+      />
 
       {/* Repositories Table */}
       <DeveloperRepositoriesTable repositories={metrics.repositories} />

@@ -16,6 +16,7 @@ export const RepositoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Debug: Mostrar información del usuario
   console.log('🔍 DEBUG - Usuario actual:', user);
@@ -218,12 +219,34 @@ export const RepositoriesPage = () => {
           </p>
         )}
         {!loading && !error && repositories.length > 0 && (
-          <RepositoriesTable
-            repositories={repositories}
-            services={services}
-            onUpdate={handleUpdate}
-            isAdmin={isAdmin}
-          />
+          <>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Buscar por nombre de repositorio..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 max-w-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
+              />
+              {searchTerm && (
+                <span className="text-sm text-gray-500">
+                  {repositories.filter(r =>
+                    r.repoName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    r.owner.toLowerCase().includes(searchTerm.toLowerCase())
+                  ).length} de {repositories.length}
+                </span>
+              )}
+            </div>
+            <RepositoriesTable
+              repositories={repositories.filter(repo =>
+                repo.repoName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                repo.owner.toLowerCase().includes(searchTerm.toLowerCase())
+              )}
+              services={services}
+              onUpdate={handleUpdate}
+              isAdmin={isAdmin}
+            />
+          </>
         )}
       </div>
       {/* Componente de debug temporal */}

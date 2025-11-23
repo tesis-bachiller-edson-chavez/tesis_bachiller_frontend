@@ -38,6 +38,7 @@ export const RepositoriesTable = ({
   const [editForm, setEditForm] = useState<UpdateRepositoryRequest>({
     datadogServiceName: null,
     deploymentWorkflowFileName: null,
+    productionEnvironmentName: null,
   });
   const [saving, setSaving] = useState(false);
 
@@ -45,7 +46,8 @@ export const RepositoriesTable = ({
     setEditingId(repo.id);
     setEditForm({
       datadogServiceName: repo.datadogServiceName,
-      deploymentWorkflowFileName: repo.deploymentWorkflowFileName,
+      deploymentWorkflowFileName: repo.deploymentWorkflowFileName || 'deploy-dev.yml',
+      productionEnvironmentName: repo.productionEnvironmentName || 'prod',
     });
   };
 
@@ -54,6 +56,7 @@ export const RepositoriesTable = ({
     setEditForm({
       datadogServiceName: null,
       deploymentWorkflowFileName: null,
+      productionEnvironmentName: null,
     });
   };
 
@@ -78,6 +81,7 @@ export const RepositoriesTable = ({
             <TableHead>Repositorio</TableHead>
             <TableHead>Servicio Datadog</TableHead>
             <TableHead>Workflow</TableHead>
+            <TableHead>Ambiente</TableHead>
             {isAdmin && <TableHead>Acciones</TableHead>}
           </TableRow>
         </TableHeader>
@@ -141,12 +145,36 @@ export const RepositoriesTable = ({
                         deploymentWorkflowFileName: e.target.value || null,
                       })
                     }
-                    placeholder="ej: deploy.yml"
+                    placeholder="ej: deploy-dev.yml"
                     className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm"
                   />
                 ) : (
                   <span className="text-sm">
                     {repo.deploymentWorkflowFileName || (
+                      <span className="text-gray-400 italic">Sin configurar</span>
+                    )}
+                  </span>
+                )}
+              </TableCell>
+
+              {/* Ambiente de Producción */}
+              <TableCell>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm.productionEnvironmentName || ''}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        productionEnvironmentName: e.target.value || null,
+                      })
+                    }
+                    placeholder="ej: prod"
+                    className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm"
+                  />
+                ) : (
+                  <span className="text-sm">
+                    {repo.productionEnvironmentName || (
                       <span className="text-gray-400 italic">Sin configurar</span>
                     )}
                   </span>

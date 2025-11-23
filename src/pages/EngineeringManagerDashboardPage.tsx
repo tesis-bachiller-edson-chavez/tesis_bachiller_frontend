@@ -152,7 +152,7 @@ export default function EngineeringManagerDashboardPage() {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
 
-  if (!metrics || metrics.aggregatedCommitStats.totalCommits === 0) {
+  if (!metrics) {
     return (
       <div className="p-6">
         <Card>
@@ -204,7 +204,11 @@ export default function EngineeringManagerDashboardPage() {
       <DoraMetricsSectionTechLead doraMetrics={metrics.aggregatedDoraMetrics} />
 
       {/* Time Series Charts (with MTTR) */}
-      <TimeSeriesChartsTechLead dailyMetrics={metrics.aggregatedDoraMetrics.dailyMetrics} />
+      <TimeSeriesChartsTechLead
+        dailyMetrics={metrics.aggregatedDoraMetrics.dailyMetrics}
+        dateFrom={appliedFilters.dateFrom}
+        dateTo={appliedFilters.dateTo}
+      />
 
       {/* Repositories Table */}
       <DeveloperRepositoriesTable repositories={metrics.repositories} />
