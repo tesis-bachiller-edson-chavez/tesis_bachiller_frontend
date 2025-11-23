@@ -108,7 +108,7 @@ describe('DeveloperDashboardPage', () => {
     });
   });
 
-  it('should show empty state when no commits', async () => {
+  it('should display dashboard with zero metrics when no commits', async () => {
     const mockData = {
       developerUsername: 'new_developer',
       repositories: [],
@@ -147,7 +147,11 @@ describe('DeveloperDashboardPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/No hay datos disponibles/i)).toBeInTheDocument();
+      // Dashboard should be displayed even with 0 commits
+      expect(screen.getByText(/Dashboard de Desarrollador/i)).toBeInTheDocument();
+      expect(screen.getByText(/@new_developer/i)).toBeInTheDocument();
+      expect(screen.getByText(/MetricsOverviewCards/i)).toBeInTheDocument();
+      expect(screen.getByText(/DoraMetricsSection/i)).toBeInTheDocument();
     });
   });
 });
