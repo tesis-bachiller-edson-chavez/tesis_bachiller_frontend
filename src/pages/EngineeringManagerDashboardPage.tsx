@@ -113,13 +113,8 @@ export default function EngineeringManagerDashboardPage() {
         setTeamsWithRepos(data.teams);
       }
 
-      // Initialize selected repos and teams if not set
-      if (selectedRepositoryIds.length === 0 && data.repositories.length > 0) {
-        setSelectedRepositoryIds(data.repositories.map((r) => r.repositoryId));
-      }
-      if (selectedTeamIds.length === 0 && allTeams.length > 0) {
-        setSelectedTeamIds(allTeams.map((t) => t.id));
-      }
+      // Note: We don't auto-select teams/repos on initial load
+      // This way the user starts with all data visible and can filter down
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
