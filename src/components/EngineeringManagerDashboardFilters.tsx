@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Select from 'react-select';
-import type { RepositoryStatsDto } from '@/types/dashboard.types';
+import type { RepositoryStatsDto, TeamMetricsDto } from '@/types/dashboard.types';
 import type { TeamDto, TeamMemberDto } from '@/types/user.types';
 
 interface EngineeringManagerDashboardFiltersProps {
@@ -16,6 +16,7 @@ interface EngineeringManagerDashboardFiltersProps {
   selectedMemberIds: number[];
   onMemberIdsChange: (ids: number[]) => void;
   onTeamMembersUpdate: (members: TeamMemberDto[]) => void;
+  teamsWithRepos: TeamMetricsDto[];
   dateFrom: string;
   dateTo: string;
   onDateFromChange: (date: string) => void;
@@ -34,12 +35,50 @@ export function EngineeringManagerDashboardFilters({
   selectedMemberIds,
   onMemberIdsChange,
   onTeamMembersUpdate,
+  teamsWithRepos,
   dateFrom,
   dateTo,
   onDateFromChange,
   onDateToChange,
   onApplyFilters,
 }: EngineeringManagerDashboardFiltersProps) {
+
+  // Filter available repositories based on selected teams
+  const availableRepositories = useMemo(() => {
+    if (selectedTeamIds.length === 0) {
+      // No teams selected = show all repositories
+      return repositories;
+    }
+
+    // Get repositories from selected teams
+    const repoIdsFromSelectedTeams = new Set<number>();
+    teamsWithRepos
+      .filter((team) => selectedTeamIds.includes(team.teamId))
+      .forEach((team) => {
+        team.repositories.forEach((repo) => {
+          repoIdsFromSelectedTeams.add(repo.repositoryId);
+        });
+      });
+
+    // Filter to only show repositories from selected teams
+    return repositories.filter((repo) =>
+      repoIdsFromSelectedTeams.has(repo.repositoryId)
+    );
+  }, [repositories, selectedTeamIds, teamsWithRepos]);
+
+  // Clear repository selection when teams change
+  useEffect(() => {
+    if (selectedTeamIds.length > 0) {
+      // Clear repository selection when teams change
+      const availableRepoIds = new Set(availableRepositories.map((r) => r.repositoryId));
+      const validSelectedRepos = selectedRepositoryIds.filter((id) =>
+        availableRepoIds.has(id)
+      );
+      if (validSelectedRepos.length !== selectedRepositoryIds.length) {
+        onRepositoryIdsChange(validSelectedRepos);
+      }
+    }
+  }, [selectedTeamIds, availableRepositories]);
 
   // Fetch members when selected teams change (hierarchical filtering)
   useEffect(() => {
@@ -94,8 +133,8 @@ export function EngineeringManagerDashboardFilters({
     fetchMembersFromSelectedTeams();
   }, [selectedTeamIds]);
 
-  // Convert to react-select options
-  const repositoryOptions = repositories.map((repo) => ({
+  // Convert to react-select options (use filtered repositories)
+  const repositoryOptions = availableRepositories.map((repo) => ({
     value: repo.repositoryId,
     label: repo.repositoryName,
   }));
@@ -140,7 +179,7 @@ export function EngineeringManagerDashboardFilters({
   };
 
   const handleSelectAllRepos = () => {
-    onRepositoryIdsChange(repositories.map((r) => r.repositoryId));
+    onRepositoryIdsChange(availableRepositories.map((r) => r.repositoryId));
   };
 
   const handleDeselectAllRepos = () => {

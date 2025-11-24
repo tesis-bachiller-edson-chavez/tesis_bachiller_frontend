@@ -5,7 +5,7 @@ import { DoraMetricsSectionTechLead } from '@/components/DoraMetricsSectionTechL
 import { DeveloperRepositoriesTable } from '@/components/DeveloperRepositoriesTable';
 import { TimeSeriesChartsTechLead } from '@/components/TimeSeriesChartsTechLead';
 import { EngineeringManagerDashboardFilters } from '@/components/EngineeringManagerDashboardFilters';
-import type { EngineeringManagerMetricsResponse } from '@/types/dashboard.types';
+import type { EngineeringManagerMetricsResponse, TeamMetricsDto } from '@/types/dashboard.types';
 import type { TeamDto, TeamMemberDto } from '@/types/user.types';
 
 // Helper to get date in YYYY-MM-DD format
@@ -37,6 +37,7 @@ export default function EngineeringManagerDashboardPage() {
   const [allRepositories, setAllRepositories] = useState<EngineeringManagerMetricsResponse['repositories']>([]);
   const [allTeams, setAllTeams] = useState<TeamDto[]>([]);
   const [allMembers, setAllMembers] = useState<TeamMemberDto[]>([]); // Members from selected teams
+  const [teamsWithRepos, setTeamsWithRepos] = useState<TeamMetricsDto[]>([]); // Teams with their repositories
 
   // Filter states
   const defaultRange = getDefaultDateRange();
@@ -104,9 +105,12 @@ export default function EngineeringManagerDashboardPage() {
       const data: EngineeringManagerMetricsResponse = await response.json();
       setMetrics(data);
 
-      // Store all repositories on first fetch (when no filters applied)
+      // Store all repositories and teams with repos on first fetch (when no filters applied)
       if (allRepositories.length === 0 && data.repositories.length > 0) {
         setAllRepositories(data.repositories);
+      }
+      if (teamsWithRepos.length === 0 && data.teams.length > 0) {
+        setTeamsWithRepos(data.teams);
       }
 
       // Initialize selected repos and teams if not set
@@ -121,7 +125,7 @@ export default function EngineeringManagerDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedRepositoryIds.length, selectedTeamIds.length, allRepositories.length, allTeams.length]);
+  }, [selectedRepositoryIds.length, selectedTeamIds.length, allRepositories.length, allTeams.length, teamsWithRepos.length]);
 
   // Initial fetch
   useEffect(() => {
@@ -186,6 +190,7 @@ export default function EngineeringManagerDashboardPage() {
         selectedMemberIds={selectedMemberIds}
         onMemberIdsChange={setSelectedMemberIds}
         onTeamMembersUpdate={setAllMembers}
+        teamsWithRepos={teamsWithRepos}
         dateFrom={dateFrom}
         dateTo={dateTo}
         onDateFromChange={setDateFrom}
